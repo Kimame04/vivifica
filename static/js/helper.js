@@ -80,7 +80,7 @@ function search(id1, id2, id3, id4, id5){
 
 function logout(){
   sessionStorage.removeItem('status')
-  window.location.href = 'index.html'
+  window.location.href = '/index.html'
 }
 
 function sendEmail(subject, query){
