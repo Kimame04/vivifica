@@ -20,21 +20,6 @@ function SVS_B(eAmt, where) {
       window.scrollBy(0, eAmt);
 }
 
-function checkStatus(){
-  if (sessionStorage.getItem('status') == null){
-    window.location.href = 'login.html'
-  }
-}
-
-function goRecords() {
-  sessionStorage.setItem('status', '0')
-  window.location.href = 'records.html'
-}
-
-function changePage(name){
-  window.location.href = name
-}
-
 function search(id1, id2, id3, id4, id5){
   var new_tbody = document.createElement('tbody');
   new_tbody.id = 'results'
@@ -78,13 +63,3 @@ function search(id1, id2, id3, id4, id5){
 
 }
 
-function logout(){
-  sessionStorage.removeItem('status')
-  window.location.href = '/index.html'
-}
-
-function sendEmail(subject, query){
-  subject_text = document.getElementById(subject).value
-  query_text = document.getElementById(query).value
-  window.open('mailto:mendozakyan@gmail.com?subject=' + subject_text + "&body=" +  query_text)
-}

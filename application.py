@@ -1,38 +1,45 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request, session
+from flask_session import Session
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route("/")
 def index():
-    return render_template("/index.html", data='user')
+    return render_template("index.html")
 
-@app.route("/index.html")
-def home():
-    return render_template("/index.html", data='user')
-
-@app.route("/feedback.html")
+@app.route("/feedback")
 def feedback():
-    return render_template("/feedback.html")
+    return render_template("feedback.html")
 
-@app.route("/login.html")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("/login.html")
+    if request.method == 'POST':
+        session["username"] = request.form.get("username")
+        return redirect("/records")
+    return render_template("login.html")
 
-@app.route("/pricing.html")
+@app.route("/logout")
+def logout():
+    session["username"] = None
+    return redirect("/records")
+
+@app.route("/pricing")
 def pricing():
-    return render_template("/pricing.html")
+    return render_template("pricing.html")
 
-@app.route("/records.html")
+@app.route("/records")
 def records():
-    return render_template("/records.html")
+    if not session.get("username"): 
+        return redirect("/login")
+    return render_template("records.html")
 
 @app.route("/bye")
 def bye():
     return render_template("bye.html")
-    
-@app.route('/<name>')
-def custom(name):
-    return render_template("index.html", data = name)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
