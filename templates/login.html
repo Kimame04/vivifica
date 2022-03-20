@@ -8,25 +8,25 @@
     }
   </style>
 
-{% block body %}    
-
-  <body class="text-center">
-
+{% block body %}   
+  <div style="margin-top: 10%; margin-left: 30%; margin-right: 30%;">
     <form class="form-signin" method="post">
       <h1 class="h3 mb-3 font-weight-normal" style="color: white;">Please enter your details</h1>
-      <input name="username" type="text" id="inputEmail" class="form-control" placeholder="Username" required autofocus>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" >
-      <button class="btn btn-lg btn-primary btn-block" id="clickMe" type="submit" value="clickme">Log In</button>
-      <!--<button class="btn btn-lg btn-primary btn-block" id="clickMe" type="button" value="clickme" onclick="goRecords()">Register</button>=-->
+      <input name="username" type="text" class="form-control" placeholder="Username" required autofocus>
+      <input name = "password" type="password" autocomplete="off" class="form-control" placeholder="Password" required>
+      {% if message %}
+      <p class="text"> {{ message }} </p>
+      {% endif %}
+      <div style="text-align: center; margin-top: 5px;">
+        <button class="btn btn-lg btn-primary btn-block" name="submit_btn" type="submit" value="login">Log In</button>
+        <button class="btn btn-lg btn-success btn-block" name="submit_btn" type="submit" value="register">Register</button>
 
-      <!---<p style="color: rgb(187, 187, 187); margin-top: 10px;"><i>Or if you're new, REGISTER</i></p>
-      <div class="row">
-        <div class="col-sm-12 text-center">
-            <button id="btnSearch" class="btn btn-outline-primary btn-md center-block" onclick="goRecords()">Standard Plan</button>
-            <button id="btnClear" class="btn btn-outline-primary btn-md center-block" onclick="goRecords()">Premium Plan</button>
-         </div> -->
-    </div>      
+      </div>
     </form>
+  </div>      
+
+
+    <h1 style="margin-top: 50%"></h1>
 
 
 {% endblock %}

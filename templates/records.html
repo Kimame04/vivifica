@@ -2,8 +2,8 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/records.css')}}">
 {% block body %}
 
-  {% if session.name %}
-    <p class="text">You are currently logged in as {{ session.name }} <a href="/logout">Log Out</a></p>
+  {% if session.username %}
+    <p class="text">You are currently logged in as {{ session.username }} <a href="/logout">Log Out</a></p>
     <section>
         <div class="input-group col text-center">
             <input type="date" placeholder="Any Date" id="form1" class="form-control" />
@@ -56,6 +56,6 @@
     <h1 style="margin-top: 50%"></h1>
 
   {% else %}
-    You are not logged in. <a href="/login.html">Log In</a>
+    You are not logged in. <a href="/login">Log In</a>
   {% endif %}
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+  <link rel="stylesheet" href="{{url_for('static', filename='css/signin.css')}}">
+
+  <style>
+    body{
+      background-image: url('https://images.unsplash.com/photo-1557994758-44f384fed71e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Nnx8fGVufDB8fHx8&w=1000&q=80')
+    }
+  </style>
+
+{% block body %}   
+  <div style="margin-top: 10%; margin-left: 30%; margin-right: 30%;">
+    <form class="form-register" method="post">
+      <h1 class="h3 mb-3 font-weight-normal" style="color: white;">Registration</h1>
+      <input name="email" type="email" id="email" class="form-control" placeholder="Email" required>
+      <div style="text-align: center; margin-top: 5px;">
+        <button class="btn btn-lg btn-primary btn-block" id="clickMe" type="submit" value="clickme">Register</button>
+      </div>
+    </form>
+  </div>      
+
+
+    <h1 style="margin-top: 50%"></h1>
+
+
+{% endblock %}
