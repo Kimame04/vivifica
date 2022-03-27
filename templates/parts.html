@@ -10,6 +10,10 @@
                 <div class="input-group-append">
                 <button class="btn btn-outline-success" type="submit">Search</button>
                 </div>
+            </div>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="customSwitch1" checked>
+                <label class="custom-control-label" for="customSwitch1">Table</label>
             </div>    
         </form>
 
@@ -33,10 +37,32 @@
 
 
         {% for part in parts %}
+            {% set target = '#A' +  part.part_id %}
+            {% set id = 'A' + part.part_id %}
             <div class="card" style="width: 12rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
-                <div class="card-body">
+                <div class="card-body" data-bs-toggle="modal" data-bs-target='{{target}}'>
                     <h5 class="card-title">{{part.p_name}}</h5>
                     <h6 class="card-subtitle">{{ part.c_name }} </h6>
+                </div>
+            </div>
+            <div class="modal fade" id='{{id}}' tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <img height="300" img src="{{url_for('static', filename='/images/part.jpg')}}"></a>
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">{{part.p_name}}</h5>
+                      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-dark">{{'Manufacturer: ' + part.c_name}}</p>
+                      <p class="text-dark">{{'Cost: $' + part.cost|string}}</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
                 </div>
             </div>
         {% endfor %}    

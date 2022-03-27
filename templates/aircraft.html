@@ -33,12 +33,37 @@
 
 
         {% for aircraft in aircrafts %}
+            {% set target = '#A' +  aircraft.reg_num %}
+            {% set id = 'A' + aircraft.reg_num %}
             <div class="card" style="width: 12rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
-                <div class="card-body">
+                <div class="card-body" data-bs-toggle="modal" data-bs-target='{{target}}'>
                     <h5 class="card-title">{{aircraft.reg_num}}</h5>
                     <h6 class="card-subtitle">{{ aircraft.aircraft_name }} </h6>
                 </div>
             </div>
+
+            <div class="modal fade" id='{{id}}' tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <img height="300" img src="{{url_for('static', filename='/images/airplane.jpg')}}"></a>
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLongTitle">{{aircraft.reg_num}}</h5>
+                      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="text-dark">{{'Aircraft Model: ' + aircraft.aircraft_name}}</p>
+                      <p class="text-dark">{{'Production Date: ' + aircraft.produce_date.strftime('%Y-%m-%d')}}</p>
+                      <p class="text-dark">{{'Production Facility: ' + aircraft.production_site}}</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
         {% endfor %}    
         <h1 style="margin-top: 50%"></h1>
     </div>
