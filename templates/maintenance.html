@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+    <div style="margin: 2%;">
+        <h2>Maintenance Records List</h2>
+        <form method="post">
+            <div class="input-group mb-3">
+                <input type="text" name="query" class="form-control" placeholder="Maintenance name" aria-label="Maintenance name" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+                </div>
+            </div>    
+        </form>
+
+        {% if search %}
+            <h2>Search results</h2>
+            <form method="post">
+                <div class="input-group" style="width: 100%">
+                    <select class="custom-select" id="inputGroupSelect04">
+                    <option selected>Sort by...</option>
+                    <option value="1">Company A-Z</option>
+                    <option value="2">Company Z-A</option>
+                    <option value="3">Date A-Z</option>
+                    <option value="3">Date Z-A</option>
+                    </select>
+                    <div class="input-group-append">
+                    <button class="btn btn-outline-light" type="button">Sort</button>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+
+
+        {% for record in records %}
+            <div class="card" style="width: 12rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+                <div class="card-body">
+                    <h5 class="card-title">{{record.reg_num}}</h5>
+                    <h6 class="card-subtitle">{{ record.date}} </h6>
+                </div>
+            </div>
+        {% endfor %}    
+        <h1 style="margin-top: 50%"></h1>
+    </div>
+
+
+{% endblock %}

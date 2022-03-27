@@ -4,6 +4,7 @@
 
   {% if session.username %}
     <p class="text">You are currently logged in as {{ session.username }} <a href="/logout">Log Out</a></p>
+    <!--
     <section>
         <div class="input-group col text-center">
             <input type="date" placeholder="Any Date" id="form1" class="form-control" />
@@ -51,7 +52,40 @@
               </div>
         </div>      
     
-    </section>
+    </section> !-->
+
+    <div style="text-align: center;">
+
+      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body">
+          <h5 class="card-title">Parts</h5>
+          <a href="/parts" class="card-link">View parts database</a>
+        </div>
+      </div>
+  
+      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body">
+          <h5 class="card-title">Aircraft</h5>
+          <a href="/aircraft" class="card-link">View aircraft database</a>
+        </div>
+      </div>
+  
+      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body">
+          <h5 class="card-title">Maintenance</h5>
+          <a href="/maintenance" class="card-link">View maintenance database</a>
+        </div>
+      </div>
+
+      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body">
+          <h5 class="card-title">Company</h5>
+          <a href="/company" class="card-link">View company database</a>
+        </div>
+      </div>
+  
+    </div>
+
 
     <h1 style="margin-top: 50%"></h1>
 
