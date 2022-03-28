@@ -100,8 +100,24 @@ def parts():
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM part WHERE p_name LIKE %s  or c_name LIKE %s', ['%%' + query + '%%', '%%' + query + '%%'])
-        return render_template("parts.html", parts=cursor.fetchall(), search="true")
+        list = ''
+        val = request.form.get('sort')
+        if val == '1':
+            list = 'ORDER BY p_name ASC'
+        if val == '2':
+            list = 'ORDER BY p_name DESC'
+        if val == '3':
+            list = 'ORDER BY c_name ASC'
+        if val == '4':
+            list = 'ORDER BY c_name DESC'
+
+        cursor.execute('SELECT * FROM part WHERE p_name LIKE %s  or c_name LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        
+        table = None
+        if request.form.getlist('check'):
+            table = 'true'
+        
+        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table)
 
     cursor.execute('SELECT * FROM part')
     return render_template("parts.html", parts=cursor.fetchall())
@@ -112,8 +128,22 @@ def aircraft():
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM produced_as WHERE aircraft_name LIKE %s  or reg_num LIKE %s', ['%%' + query + '%%', '%%' + query + '%%'])
-        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true")
+        val = request.form.get('sort')
+        if val == '1':
+            list = 'ORDER BY reg_num ASC'
+        if val == '2':
+            list = 'ORDER BY reg_num DESC'
+        if val == '3':
+            list = 'ORDER BY aircraft_name ASC'
+        if val == '4':
+            list = 'ORDER BY aircraft_name DESC'
+
+        cursor.execute('SELECT * FROM produced_as WHERE aircraft_name LIKE %s  or reg_num LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        table = None
+        if request.form.getlist('check'):
+            table = 'true'
+
+        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true", table=table)
 
     cursor.execute('SELECT * FROM produced_as')
     return render_template("aircraft.html", aircrafts=cursor.fetchall())
@@ -124,8 +154,21 @@ def maintenance():
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM maintenance WHERE c_name LIKE %s  or facility_loc LIKE %s', ['%%' + query + '%%', '%%' + query + '%%'])
-        return render_template("maintenance.html", records=cursor.fetchall(), search="true")
+        val = request.form.get('sort')
+        if val == '1':
+            list = 'ORDER BY reg_num ASC'
+        if val == '2':
+            list = 'ORDER BY reg_num DESC'
+        if val == '3':
+            list = 'ORDER BY date ASC'
+        if val == '4':
+            list = 'ORDER BY date DESC'
+        
+        cursor.execute('SELECT * FROM maintenance WHERE c_name LIKE %s  or facility_loc LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        table = None
+        if request.form.getlist('check'):
+            table = 'true'
+        return render_template("maintenance.html", records=cursor.fetchall(), search="true", table=table)
 
     cursor.execute('SELECT * FROM maintenance')
     return render_template("maintenance.html", records=cursor.fetchall())
@@ -136,9 +179,23 @@ def company():
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM company WHERE c_name LIKE %s', ['%%' + query + '%%'])
-        return render_template("company.html", companies=cursor.fetchall(), search="true")
 
+        val = request.form.get('sort')
+        if val == '1':
+            list = 'ORDER BY c_name ASC'
+        if val == '2':
+            list = 'ORDER BY c_name DESC'
+        if val == '3':
+            list = 'ORDER BY est_date ASC'
+        if val == '4':
+            list = 'ORDER BY est_date DESC'
+
+        cursor.execute('SELECT * FROM company WHERE c_name LIKE %s' + list, ['%%' + query + '%%'])
+        table = None
+        if request.form.getlist('check'):
+            table = 'true'
+        return render_template("company.html", companies=cursor.fetchall(), search="true", table=table)
+            
     cursor.execute('SELECT * FROM company')
     return render_template("company.html", companies=cursor.fetchall())
 
