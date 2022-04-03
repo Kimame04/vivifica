@@ -35,8 +35,8 @@
         {% endif %}
 
         {% for record in records %}
-            {% set target = '#A' +  record.maintenance_id %}
-            {% set id = 'A' + record.maintenance_id %}
+            {% set target = '#A' +  record.maintenance_id|replace(" ","") %}
+            {% set id = 'A' + record.maintenance_id|replace(" ","") %}
             {% if table %}
             <tr data-bs-toggle="modal" data-bs-target='{{target}}'>
               <th scope="row">{{loop.index}}</th>

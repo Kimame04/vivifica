@@ -43,8 +43,8 @@
         {% endif %}
 
         {% for part in parts %}
-            {% set target = '#A' +  part.part_id %}
-            {% set id = 'A' + part.part_id %}
+            {% set target = '#A' +  part.part_id|replace(" ","") %}
+            {% set id = 'A' + part.part_id|replace(" ","") %}
             {% if table %}
                 <tr data-bs-toggle="modal" data-bs-target="{{target}}">
                     <th scope="row">{{loop.index}}</th>

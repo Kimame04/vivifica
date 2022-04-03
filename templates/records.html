@@ -3,89 +3,54 @@
 {% block body %}
 
   {% if session.username %}
-    <p class="text">You are currently logged in as {{ session.username }} <a href="/logout">Log Out</a></p>
-    <!--
-    <section>
-        <div class="input-group col text-center">
-            <input type="date" placeholder="Any Date" id="form1" class="form-control" />
-            <select class="form-control" id="form2">
-                <option>Any Aircraft Model</option>
-                <option>Airbus A320</option>
-                <option>Airbus A330</option>
-                <option>Airbus A350</option>
-                <option>Airbus A380</option>
-            </select>
-            <select class="form-control" id="form3">
-                <option>Any Service</option>
-                <option>A check</option>
-                <option>C check</option>
-                <option>D check</option>
-            </select>
-            <button type="button" class="btn btn-primary" onclick="search(form1, form2, form3, 'results','resTable')">
-              <i class="fa fa-search"></i>
-            </button>
-            <div class="btn-group">
-                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-filter"></i>
-                </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </div>
-    </section>
-
-    <section>
-        <table id="resTable" cellpadding="2" cellspacing="2" class="col text-center" border="1">
-            <tbody id="results" hidden>
-
-            </tbody>
-        </table>
-    </section>
-
-    <section>
-        <div class="row">
-            <div class="col-sm-12 text-center">
-                <button id="btnSearch" class="btn btn-outline-secondary btn-md center-block" disabled><i class="fa fa-arrow-left"></i> Prev Page</button>
-                <button id="btnClear" class="btn btn-outline-primary btn-md center-block">Next Page <i class="fa fa-arrow-right"></i></button>
-              </div>
-        </div>      
-    
-    </section> !-->
+    <p class="text" style="margin-top: 1%; ">You are currently logged in as {{ session.username }} 
+      <a href="/logout" class="btn btn-primary">Log Out</a>
+    </p>
 
     <div style="text-align: center;">
 
-      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+      <div class="card" style="width: 14rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
         <div class="card-body">
           <h5 class="card-title">Parts</h5>
-          <a href="/parts" class="card-link">View parts database</a>
+          <a href="/parts" class="card-link">View database</a>
         </div>
       </div>
   
-      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+      <div class="card" style="width: 14rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
         <div class="card-body">
           <h5 class="card-title">Aircraft</h5>
-          <a href="/aircraft" class="card-link">View aircraft database</a>
+          <a href="/aircraft" class="card-link">View database</a>
         </div>
       </div>
   
-      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+      <div class="card" style="width: 14rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
         <div class="card-body">
           <h5 class="card-title">Maintenance</h5>
-          <a href="/maintenance" class="card-link">View maintenance database</a>
+          <a href="/maintenance" class="card-link">View database</a>
         </div>
       </div>
 
-      <div class="card" style="width: 18rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+      <div class="card" style="width: 14rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
         <div class="card-body">
           <h5 class="card-title">Company</h5>
-          <a href="/company" class="card-link">View company database</a>
+          <a href="/company" class="card-link">View database</a>
+        </div>
+      </div>
+
+      <div class="card" style="width: 14rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body">
+          <h5 class="card-title">Type</h5>
+          <a href="/type" class="card-link">View database</a>
         </div>
       </div>
   
     </div>
 
+    <div style="text-align: center;">
+      <form method="post">
+        <button name="contribute" type="submit" class="btn btn-primary" style="margin-top: 1%; width: 20%;">Contribute</button>
+      </form>
+    </div>
 
     <h1 style="margin-top: 50%"></h1>
 

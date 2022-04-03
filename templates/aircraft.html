@@ -33,8 +33,8 @@
             <tbody>
       {% endif %}
       {% for aircraft in aircrafts %}
-          {% set target = '#A' +  aircraft.reg_num %}
-          {% set id = 'A' + aircraft.reg_num %}
+          {% set target = '#A' +  aircraft.reg_num|replace(" ","") %}
+          {% set id = 'A' + aircraft.reg_num|replace(" ","") %}
           {% if table %}
             <tr data-bs-toggle="modal" data-bs-target='{{target}}'>
                 <th scope="row">{{loop.index}}</th>

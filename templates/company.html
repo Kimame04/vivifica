@@ -36,8 +36,8 @@
         {% endif %}
 
         {% for company in companies %}
-            {% set target = '#A' +  company.c_name %}
-            {% set id = 'A' + company.c_name %}
+            {% set target = '#A' + company.c_name|replace(" ","")|replace(".","") %}
+            {% set id = 'A' + company.c_name|replace(" ","")|replace(".","") %}
             {% if table %}
             <tr data-bs-toggle="modal" data-bs-target='{{target}}'>
               <th scope="row">{{loop.index}}</th>
@@ -55,7 +55,7 @@
             <div class="modal fade" id='{{id}}' tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                  <img height="300" img src="{{url_for('static', filename='/images/company.png')}}"></a>
+                  <img height="170" img src="{{url_for('static', filename='/images/company.png')}}"></a>
                   <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">{{company.c_name}}</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
