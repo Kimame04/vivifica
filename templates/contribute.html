@@ -95,7 +95,7 @@
       </div> 
       <div class="form-group" style="margin-top: 1%;">
         <label for="exampleFormControlSelect1">Company Name</label>
-        <select name="reg_num" class="form-control" id="exampleFormControlSelect1" required>
+        <select name="company" class="form-control" id="exampleFormControlSelect1" required>
           <option >Select company...</option>
           {% for model in data %}
           <option value='{{model.c_name}}'>{{model.c_name}}</option>
@@ -129,7 +129,7 @@
       </div>
       <div class="form-group" style="margin-top: 1%;">
         <label for="exampleFormControlSelect1">Est. Date</label>
-        <input name="year" type="number" class="form-control"  placeholder="2010" min="1600" max="2022" required>
+        <input name="est_date" type="number" class="form-control"  placeholder="2010" min="1600" max="2022" required>
       </div>         
       <div class="form-group" style="margin-top: 1%;">
         <label for="exampleFormControlSelect1">Address</label>
@@ -156,13 +156,13 @@
       
       {% elif val == '6' %}
       <h2>Company</h2>
-        {% if data[1] == '1' %}
+        {% if data[1] == 1 %}
         <div class="form-group" style="margin-top: 1%;">
           <label for="exampleFormControlSelect1">Main Facility</label>
           <input name="main_faci" type="text" class="form-control" placeholder="Main Facility" required>
         </div>
         {% endif %}
-        {% if data[3] == '1' %}
+        {% if data[3] == 1 %}
         <div class="form-group" style="margin-top: 1%;">
           <label for="exampleFormControlSelect1">Select carrier type</label>
           <select name="carrier_type" class="form-control" id="exampleFormControlSelect1">

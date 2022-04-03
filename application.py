@@ -288,10 +288,12 @@ def contribute():
         facility_loc = request.form.get('facility_loc').replace(' ', '')
         summary = request.form.get('summary').replace(' ', '')
         reg_num = request.form.get('reg_num')
+        print(reg_num, file=sys.stdout)
         cursor.execute("INSERT into maintenance VALUES (%s, %s, %s, %s, %s, %s)", (m_id, c_name, date, facility_loc, summary, reg_num,))
         mysql.connection.commit()
         return redirect('/records')
     elif request.method == 'POST' and 'company_next' in request.form:
+        global C_NAME, EST_DATE, ADDRESS, FUNCTIONS
         C_NAME = request.form.get('c_name')
         EST_DATE = request.form.get('est_date')
         ADDRESS = request.form.get('address')
@@ -300,7 +302,7 @@ def contribute():
         isSupplier = int(str(request.form.get('supplier')).replace('None', '0').replace('on', '1'))
         isAirline = int(str(request.form.get('airline')).replace('None', '0').replace('on', '1'))
         FUNCTIONS = [isProvider, isManufacturer, isSupplier, isAirline]
-        if isManufacturer == '1' or isAirline == '1':
+        if isManufacturer == 1 or isAirline == 1:
             return render_template('contribute.html', val='6', data=FUNCTIONS)
         else: 
             cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (C_NAME, EST_DATE, ADDRESS, isProvider, isManufacturer, None, isAirline, None, None, isSupplier,))
