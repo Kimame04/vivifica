@@ -1,0 +1,35 @@
+
+{% if subclass == 'Avionics' or vars.avi %}
+<h2>Avionics</h2>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Classification</label>
+    <input name="type" type="text" class="form-control" placeholder="fuel, navi, etc" value="{{vars.avi.classification}}" required>
+</div>
+{% elif subclass == 'Engine' or vars.eng %}
+<h2>Engine</h2>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Weight</label>
+    <input name="weight" type="number" class="form-control" placeholder="Weight" value="{{vars.eng.weight}}" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Thrust</label>
+    <input name="thrust" type="number" class="form-control" placeholder="Thrust" value="{{vars.eng.thrust}}" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Bypass Ratio</label>
+    <input name="bypass" type="number" class="form-control" placeholder="Bypass Ratio" value="{{vars.eng.bypass}}" required>
+</div>
+{% elif subclass == 'Wing' or vars.win %}
+<h2>Wing</h2>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Material</label>
+    <input name="material" type="text" class="form-control" placeholder="Material" value="{{vars.win.material}}" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Span</label>
+    <input name="span" type="number" class="form-control" placeholder="Span" value="{{vars.win.span}}" required>
+</div>
+
+
+{% endif %}
+  

@@ -1,0 +1,34 @@
+<h2>Maintenance</h2>
+<div class="form-group" style="margin-top: 1%;">
+  <div id="date-picker-example" inline="true">
+    <label for="date">Maintenance Date</label>
+    <input name="date" placeholder="Select date" type="date" id="example" class="form-control">
+  </div>    
+</div> 
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Company Name</label>
+  <select name="company" class="form-control" id="exampleFormControlSelect1" required>
+    <option >Select company...</option>
+    {% for model in data %}
+    <option value='{{model.c_name}}'>{{model.c_name}}</option>
+    {% endfor %}
+  </select>
+</div>   
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Production Site</label>
+  <input name="facility_loc" type="text" class="form-control" placeholder="Production Site" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Summary</label>
+  <input name="summary" type="text" class="form-control" placeholder="Summary" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect2">Register Number</label>
+  <select name="reg_num" class="form-control" id="exampleFormControlSelect2" required>
+    <option >Select aircraft...</option>
+    {% for model in data2 %}
+    <option value='{{model.reg_num}}'>{{model.reg_num}}</option>
+    {% endfor %}
+  </select>
+</div>   
+<button name="maintenance_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      

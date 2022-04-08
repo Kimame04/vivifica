@@ -1,0 +1,24 @@
+<div class="modal fade right" id="{{id_2}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true">
+    <form method="post">
+        <div class="modal-dialog modal-full-height modal-right" role="document">
+            <div class="modal-content">
+            <div class="modal-body" style="background-color: black;">
+                {% if part %}
+                    {% include 'part_contribute.html' %}
+                    {% include 'part_p2_contribute.html' %}
+                    {% set key = part.part_id %}
+                {% endif %}
+            </div>
+            <div class="modal-footer justify-content" style="background-color: black;">
+                <form method="post">
+                    <input type="hidden" name="key" value="{{key}}">
+                    <button type="submit" name="update" class="btn btn-success">
+                        <i class="fa fa-check"></i>
+                    </button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </form>
+</div>

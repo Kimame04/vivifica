@@ -35,6 +35,8 @@
       {% for aircraft in aircrafts %}
           {% set target = '#A' +  aircraft.reg_num|replace(" ","") %}
           {% set id = 'A' + aircraft.reg_num|replace(" ","") %}
+          {% set target_2 = '#B' + aircraft.reg_num|replace(" ", '') %}
+          {% set id_2 = 'B' + aircraft.reg_num|replace(" ", '') %}
           {% if table %}
             <tr data-bs-toggle="modal" data-bs-target='{{target}}'>
                 <th scope="row">{{loop.index}}</th>
@@ -65,11 +67,20 @@
                   <p class="text-dark">{{'Production Facility: ' + aircraft.production_site}}</p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <form method="post">
+                    <input type="hidden" name="modalfunc" value="{{id}}">
+                    <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
+                        <i class="fa fa-pencil"></i>
+                    </button>                    
+                    <button name="ps" value="delete" type="submit" class="btn btn-danger">
+                        <i class="fa fa-trash-can"></i>
+                    </button>                    
+                  </form>
                 </div>
               </div>
             </div>
-        </div>
+          </div>
+          {% include 'side_modal.html' %}
 
       {% endfor %}
 

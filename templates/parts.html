@@ -43,8 +43,31 @@
         {% endif %}
 
         {% for part in parts %}
+            {% set subclass = 'none' %}
+            {% set obj = 'none' %}
+            {% set vars = {'avi': None, 'eng': None, 'win': None} %}
+
+            {% for avionic in avionics %}
+                {% if avionic.part_id == part.part_id %}
+                {% if vars.update({'avi': avionic}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% for engine in engines %}
+                {% if engine.part_id == part.part_id %}
+                {% if vars.update({'eng': engine}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% for wing in wings %}
+                {% if wing.part_id == part.part_id %}
+                {% if vars.update({'win': wing}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+
             {% set target = '#A' +  part.part_id|replace(" ","") %}
             {% set id = 'A' + part.part_id|replace(" ","") %}
+            {% set target_2 = '#B' + part.part_id|replace(" ", '') %}
+            {% set id_2 = 'B' + part.part_id|replace(" ", '') %}
             {% if table %}
                 <tr data-bs-toggle="modal" data-bs-target="{{target}}">
                     <th scope="row">{{loop.index}}</th>
@@ -71,13 +94,48 @@
                     <div class="modal-body">
                         <p class="text-dark">{{'Manufacturer: ' + part.c_name}}</p>
                         <p class="text-dark">{{'Cost: $' + part.cost|string}}</p>
+                        {% if vars.avi %}
+                        <p class="text-dark">{{'Avionics type: ' + vars.avi.classification}}</p>
+                        <div class="chip chip-outline" data-mdb-close="true">
+                            Avionics
+                        </div>                        
+
+                        {% elif vars.eng %}
+                        <p class="text-dark">{{'Weight: ' + vars.eng.weight|string}}</p>
+                        <p class="text-dark">{{'Thrust: ' + vars.eng.thrust|string}}</p>
+                        <p class="text-dark">{{'Bypass Ratio: ' + vars.eng.bypass_ratio|string}}</p>
+                        <div class="chip">
+                            Engine
+                        </div>                        
+
+                        {% elif vars.win %}
+                        <p class="text-dark">{{'Material: ' + vars.win.material}}</p>
+                        <p class="text-dark">{{'Span: ' + vars.win.span|string}}</p>
+                        <div class="chip">
+                            Wing
+                        </div>      
+                        {% else %}
+                        <div class="chip">
+                            Other
+                        </div>                                          
+
+                        {% endif %}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <form method="post">
+                            <input type="hidden" name="modalfunc" value="{{id}}">
+                            <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
+                                <i class="fa fa-pencil"></i>
+                            </button>                    
+                            <button name="ps" value="delete" type="submit" class="btn btn-danger">
+                                <i class="fa fa-trash-can"></i>
+                            </button>                    
+                        </form>
                     </div>
                 </div>
                 </div>
             </div>
+            {% include 'side_modal.html' %}
 
         {% endfor %}
 

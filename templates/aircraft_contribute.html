@@ -1,0 +1,25 @@
+<h2>Aircraft</h2>
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Type Name</label>
+  <input name="name" type="text" class="form-control" placeholder="Type Name" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Model</label>
+  <select name="model" class="form-control" id="exampleFormControlSelect1" required>
+    <option >Select model...</option>
+    {% for model in data %}
+    <option value='{{model.aircraft_name}}'>{{model.aircraft_name}}</option>
+    {% endfor %}
+  </select>
+</div>         
+<div class="form-group" style="margin-top: 1%;">
+  <div id="date-picker-example" inline="true">
+    <label for="example">Production Date</label>
+    <input name="date" placeholder="Select date" type="date" id="example" class="form-control">
+  </div>      
+</div>         
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Production Site</label>
+  <input name="site" type="text" class="form-control" placeholder="Production Site" required>
+</div>
+<button name="aircraft_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      

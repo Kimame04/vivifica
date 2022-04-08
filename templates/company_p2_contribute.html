@@ -1,0 +1,22 @@
+<h2>Company</h2>
+{% if data[1] == 1 %}
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Main Facility</label>
+  <input name="main_faci" type="text" class="form-control" placeholder="Main Facility" required>
+</div>
+{% endif %}
+{% if data[3] == 1 %}
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Select carrier type</label>
+  <select name="carrier_type" class="form-control" id="exampleFormControlSelect1">
+    <option selected value="1">Budget</option>
+    <option value="2">Flag</option>
+    <option value="3">Charter</option>
+  </select>
+</div>   
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Country</label>
+  <input name="country" type="text" class="form-control" placeholder="Country" required>
+</div>
+{% endif %}
+<button name="company_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>     

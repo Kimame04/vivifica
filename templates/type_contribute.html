@@ -1,0 +1,34 @@
+<h2>Aircraft Type</h2>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Type Name</label>
+    <input name="name" type="text" class="form-control" placeholder="Type Name" required>
+</div>
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Company</label>
+  <select name="manu" class="form-control" id="exampleFormControlSelect1" required>
+    <option >Select company...</option>
+    {% for company in data %}
+    <option value='{{company.c_name}}'>{{company.c_name}}</option>
+    {% endfor %}
+  </select>
+</div>         
+  <div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Year Introduced</label>
+    <input name="year" type="number" class="form-control"  placeholder="2010" min="1900" max="2022" required>
+  </div>         
+  <div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Number of Engines</label>
+    <input name="engines" type="number" class="form-control"  placeholder="1" min="1" max="10" required>
+  </div>         
+  <div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Size Class</label>
+    <select name="size" class="form-control" id="exampleFormControlSelect1" required>
+      <option selected value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+    </select>
+  </div>   
+  <button name="type_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      
