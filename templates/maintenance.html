@@ -35,8 +35,32 @@
         {% endif %}
 
         {% for record in records %}
-            {% set target = '#A' +  record.maintenance_id|replace(" ","") %}
+            {% set subclass = 'none' %}
+            {% set obj = 'none' %}
+            {% set vars = {'a_check': None, 'c_check': None, 'd_check': None} %}
+
+            {% for check in a_checks %}
+                {% if check.maintenance_id == record.maintenance_id %}
+                {% if vars.update({'a_check': check}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% for check in c_checks %}
+                {% if check.maintenance_id == record.maintenance_id %}
+                {% if vars.update({'c_check': check}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% for check in d_checks %}
+                {% if check.maintenance_id == record.maintenance_id %}
+                {% if vars.update({'d_check': check}) %} {% endif %}
+                {% endif %}
+            {% endfor %}
+
+        {% set target = '#A' +  record.maintenance_id|replace(" ","") %}
             {% set id = 'A' + record.maintenance_id|replace(" ","") %}
+            {% set target_2 = '#B' + record.maintenance_id|replace(" ", '') %}
+            {% set id_2 = 'B' + record.maintenance_id|replace(" ", '') %}
             {% if table %}
             <tr data-bs-toggle="modal" data-bs-target='{{target}}'>
               <th scope="row">{{loop.index}}</th>
@@ -66,13 +90,31 @@
                       <p class="text-dark">{{'Date: ' + record.date.strftime('%Y-%m-%d')}}</p>
                       <p class="text-dark">{{'Provider: ' + record.c_name}}</p>
                       <p class="text-dark">{{'Summary: ' + record.summary}}</p>
+                      {% if vars.d_check %}
+                      <div class="chip">D-check</div>
+                      {% elif vars.c_check %}
+                      <div class="chip">C-check</div>
+                      {% elif vars.a_check %}
+                      <div class="chip">A-check</div>
+                      {% endif %}
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <div class="modal-footer">
+                        <form method="post">
+                            <input type="hidden" name="modalfunc" value="{{id}}">
+                            <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
+                                <i class="fa fa-pencil"></i>
+                            </button>                    
+                            <button name="ps" value="delete" type="submit" class="btn btn-danger">
+                                <i class="fa fa-trash-can"></i>
+                            </button>                    
+                        </form>
+                      </div>
                     </div>
                   </div>
                 </div>
             </div>
+            {% include 'side_modal.html' %}
 
         {% endfor %}    
         {% if table %}

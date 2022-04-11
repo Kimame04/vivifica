@@ -1,13 +1,24 @@
 <div class="modal fade right" id="{{id_2}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
 aria-hidden="true">
     <form method="post">
-        <div class="modal-dialog modal-full-height modal-right" role="document">
+        <div class="modal-dialog modal-full-height modal-right modal-dialog-scrollable" role="document">
             <div class="modal-content">
             <div class="modal-body" style="background-color: black;">
                 {% if part %}
                     {% include 'part_contribute.html' %}
                     {% include 'part_p2_contribute.html' %}
                     {% set key = part.part_id %}
+                {% elif aircraft %}
+                    {% include 'aircraft_contribute.html' %}
+                {% elif record %}
+                    {% include 'maintenance_contribute.html' %}
+                    {% include 'maintenance_p2_contribute.html' %}
+                    {% set key = record.maintenance_id %}
+                {% elif company %}
+                    {% include 'company_contribute.html' %}
+                    {% include 'company_p2_contribute.html' %}
+                    {% set key = company.c_id %}
+                    
                 {% endif %}
             </div>
             <div class="modal-footer justify-content" style="background-color: black;">

@@ -1,0 +1,17 @@
+<div style="margin: 5%; padding: 1%; border: 1px solid white;">
+    <div class="form-group" style="margin-top: 1%;">
+        <div class="form-group" style="margin-top: 1%;">
+            <label for="exampleFormControlSelect1">Company</label>
+            <select name="manu" class="form-control" id="exampleFormControlSelect1" required>
+              <option >Select company...</option>
+              {% for company in airlines %}
+              <option value='{{company.c_name}}'>{{company.c_name}}</option>
+              {% endfor %}
+            </select>
+        </div>                   
+        <div id="date-picker-example" inline="true">
+          <label for="example">Production Date</label>
+          <input name="date" type="date" id="example" class="form-control"  required>
+        </div>      
+    </div>             
+</div>

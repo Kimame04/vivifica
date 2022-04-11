@@ -63,3 +63,48 @@ function search(id1, id2, id3, id4, id5){
 
 }
 
+function addDelivery(){
+  var airline = document.getElementById("airline");
+  var text = airline.options[airline.selectedIndex].value;
+  var date = new Date(document.getElementById('date').value).toISOString().split('T')[0];
+  console.log(date)
+  var node = document.createElement("li");
+  node.classList.add('list-group-item')
+  var textnode = document.createTextNode(text + " at " + date);
+  node.appendChild(textnode);
+  document.getElementById("list").appendChild(node);
+
+  var deliveries = document.getElementById('deliveries');
+  deliveries.value += (text + ',' + date + "\n");
+}
+
+function addOption(){
+  var text = document.getElementById('opt').value
+  var node = document.createElement("li");
+  node.classList.add('list-group-item')
+  node.appendChild(document.createTextNode(text))
+  document.getElementById("list_option").appendChild(node);
+  var options = document.getElementById('options');
+  options.value += (text + '\n');
+}
+
+var arr = [];
+
+function addPart(){
+  var table = document.getElementById('table');
+  var part = document.getElementById('replaced_parts')
+  var name = part.options[part.selectedIndex].value;
+  if (arr.includes(name)){
+      document.getElementById(name).value ++;
+  } else {
+      var row = table.insertRow();
+      var p_name = row.insertCell();  
+      p_name.innerHTML = name;
+      arr.push(name);
+      var qty = row.insertCell();
+      qty.innerHTML = '<input id=' + name + ' type=number min=1 max=999 value=1>';    
+      var btn = row.insertCell();
+      btn.innerHTML = '<button class="btn btn-danger btn-sm" onclick=table.deleteRow(' + row.rowIndex + ');><i class="fa fa-x"></i></button>';
+      arr.splice(row.rowIndex - 1, 1);
+  }
+}

@@ -1,0 +1,28 @@
+<h2>Type Parts</h2>
+<div class="form-group" style="margin-top: 1%;">
+    <label for="exampleFormControlSelect1">Parts</label>
+    <select name="airline" class="form-control" id="prt" required>
+      {% for model in parts %}
+        <option value='{{model.c_name}}'>{{model.p_name}}</option>
+      {% endfor %}
+    </select>
+</div>   
+<ul id='list_part' class="list-group"></ul>
+<input type="hidden" name="parts" id="parts">
+<button id="add_part" type="button" class="btn btn-outline-primary" style="margin-top: 1%;">Add</button>      
+<br>
+
+<script>
+    document.getElementById("add_part").onclick = function() {
+        var part = document.getElementById('prt');
+        var text = part.options[part.selectedIndex].value;
+        var node = document.createElement("li");
+        node.classList.add('list-group-item')
+        node.appendChild(document.createTextNode(text))
+        document.getElementById("list_part").appendChild(node);
+
+        var parts = document.getElementById('parts');
+        parts.value += (text + '\n');
+    }
+</script>
+

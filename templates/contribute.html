@@ -5,22 +5,38 @@
       {% if val == '1' %}
         {% include 'type_contribute.html' %}
       {% elif val == '2' %}
+        {% set aircraft = [] %}
         {% include 'aircraft_contribute.html' %}
+        <button name="aircraft_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>      
+      {% elif val == '2b' %}
+        {% include 'aircraft_p2_contribute.html' %}
+        <button name="aircraft_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 3%;">Submit</button>      
       {% elif val == '3' %}
         {% set part = [] %}
         {% set vars = {'avi': None, 'eng': None, 'win': None} %}
         {% include 'part_contribute.html' %}
-        <button name="part_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>      
-      {% elif val == '4' %}
-        {% include 'maintenance_contribute.html' %}
-      {% elif val == '5' %}  
-        {% include 'company_contribute.html' %}
-      {% elif val == '6' %}
-        {% include 'company_p2_contribute.html' %}        
-      {% elif val == '7' %}
+        <button name="part_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>  
+      {% elif val == '3b' %}
         {% set vars = {'avi': None, 'eng': None, 'win': None} %}
         {% include 'part_p2_contribute.html' %}
         <button name="part_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      
+      {% elif val == '4' %}
+        {% set record = [] %}
+        {% set vars = {'a_check': None, 'c_check': None, 'd_check': None} %}
+        {% include 'maintenance_contribute.html' %}
+        <button name="maintenance_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>  
+      {% elif val == '4b' %}
+        {% set vars = {'a_check': None, 'c_check': None, 'd_check': None} %}
+        {% include 'maintenance_p2_contribute.html' %}
+        <button name="maintenance_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>  
+      {% elif val == '5' %}  
+        {% set company = [] %}
+        {% include 'company_contribute.html' %}
+        <button name="company_next" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>     
+      {% elif val == '5b' %}
+        {% include 'company_p2_contribute.html' %}     
+        <button name="company_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>     
+   
   
       {% else %}
       <h2>Enter database</h2>

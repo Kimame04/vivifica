@@ -2,33 +2,61 @@
 <div class="form-group" style="margin-top: 1%;">
   <div id="date-picker-example" inline="true">
     <label for="date">Maintenance Date</label>
-    <input name="date" placeholder="Select date" type="date" id="example" class="form-control">
+    <input name="date" placeholder="Select date" type="date" id="example" class="form-control" value="{{record.date}}">
   </div>    
 </div> 
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Company Name</label>
   <select name="company" class="form-control" id="exampleFormControlSelect1" required>
-    <option >Select company...</option>
     {% for model in data %}
-    <option value='{{model.c_name}}'>{{model.c_name}}</option>
+    {% if model.c_name == record.c_name %}
+      <option value='{{model.c_name}}' selected>{{model.c_name}}</option>
+    {% else %}
+      <option value="{{model.c_name}}">{{model.c_name}}</option>
+    {% endif %}
     {% endfor %}
   </select>
 </div>   
 <div class="form-group" style="margin-top: 1%;">
-  <label for="exampleFormControlSelect1">Production Site</label>
-  <input name="facility_loc" type="text" class="form-control" placeholder="Production Site" required>
+  <label for="exampleFormControlSelect1">Facility Location</label>
+  <input name="facility_loc" type="text" class="form-control" placeholder="Facility Location" value="{{record.facility_loc}}" required>
 </div>
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Summary</label>
-  <input name="summary" type="text" class="form-control" placeholder="Summary" required>
+  <input name="summary" type="text" class="form-control" placeholder="Summary" value="{{record.summary}}" required>
 </div>
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect2">Register Number</label>
   <select name="reg_num" class="form-control" id="exampleFormControlSelect2" required>
-    <option >Select aircraft...</option>
     {% for model in data2 %}
-    <option value='{{model.reg_num}}'>{{model.reg_num}}</option>
+    {% if model.reg_num == record.reg_num %}
+      <option value='{{model.reg_num}}' selected>{{model.reg_num}}</option>
+    {% else %}
+      <option value='{{model.reg_num}}'>{{model.reg_num}}</option>
+    {% endif %}
     {% endfor %}
   </select>
 </div>   
-<button name="maintenance_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      
+<div class="form-group" style="margin-top: 1%;">
+  <label for="exampleFormControlSelect1">Check (a C-check includes an A-check, while a D-check includes a C-check)</label>
+  <select name="check" class="form-control" id="exampleFormControlSelect1" required>
+      {% if vars.d_check %}
+        <option value="A-check" disabled>A-check</option>
+        <option value="C-check" disabled>C-check</option>
+        <option value="D-check" selected>D-check</option>
+      {% elif vars.c_check %}
+        <option value="A-check" disabled>A-check</option>
+        <option value="C-check" selected>C-check</option>
+        <option value="D-check" disabled>D-check</option>
+      {% elif vars.a_check %}
+        <option value="A-check" selected>A-check</option>
+        <option value="C-check" disabled>C-check</option>
+        <option value="D-check" disabled>D-check</option>
+      {% else %}
+        <option value="A-check" selected>A-check</option>
+        <option value="C-check">C-check</option>
+        <option value="D-check">D-check</option>
+      {% endif %}
+  </select>
+</div>   
+

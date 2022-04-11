@@ -65,14 +65,34 @@
                   <p class="text-dark">{{'Aircraft Model: ' + aircraft.aircraft_name}}</p>
                   <p class="text-dark">{{'Production Date: ' + aircraft.produce_date.strftime('%Y-%m-%d')}}</p>
                   <p class="text-dark">{{'Production Facility: ' + aircraft.production_site}}</p>
+                  <!--<form method="post">
+                    <input type="hidden" name="aircraft_cust" value="{{id}}">
+                    <button name="ac" value="delivery" type="button" class="btn btn-outline-dark btn-sm">
+                      <i class="fa fa-truck"></i>
+                      Deliveries
+                    </button>                    
+                    <button name="ac" value="options" type="button" class="btn btn-outline-dark btn-sm">
+                      <i class="fa fa-gear"></i>
+                      Options
+                    </button>             
+                    <button name="ac" value="report" type="button" class="btn btn-outline-dark btn-sm">
+                      <i class="fa fa-book"></i>
+                      Parts
+                    </button>          
+
+                  </form>-->
                 </div>
                 <div class="modal-footer">
                   <form method="post">
                     <input type="hidden" name="modalfunc" value="{{id}}">
-                    <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
+                    <button name="ac" value="report" type="submit" class="btn btn-outline-dark">
+                      <i class="fa fa-book"></i>
+                      Generate Report
+                    </button>          
+                    <button name="ac" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
                         <i class="fa fa-pencil"></i>
                     </button>                    
-                    <button name="ps" value="delete" type="submit" class="btn btn-danger">
+                    <button name="ac" value="delete" type="submit" class="btn btn-danger">
                         <i class="fa fa-trash-can"></i>
                     </button>                    
                   </form>

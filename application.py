@@ -20,10 +20,6 @@ app.config['MYSQL_DB'] = 'vivifica'
 
 mysql = MySQL(app)
 
-C_NAME = None
-EST_DATE = None
-ADDRESS = None
-FUNCTIONS = None
 TEMP = None
 
 @app.route("/")
@@ -108,6 +104,19 @@ def bye():
 @app.route("/parts", methods = ["GET", "POST"])
 def parts():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    cursor.execute('SELECT * FROM part')
+    parts = cursor.fetchall()
+    cursor.execute('SELECT c_name FROM company')
+    data = cursor.fetchall()
+    cursor.execute('SELECT * from avionics')
+    avionics = cursor.fetchall()
+    cursor.execute('SELECT * from engine')
+    engines = cursor.fetchall()
+    cursor.execute('SELECT * from wing')
+    wings = cursor.fetchall()
+
+
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -128,7 +137,7 @@ def parts():
         if request.form.getlist('check'):
             table = 'true'
         
-        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table)
+        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table, data=data, avionics=avionics, engines=engines, wings=wings)
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         p_id = request.form.get('modalfunc')[1:]
@@ -147,7 +156,7 @@ def parts():
         classification = request.form.get('classification')
         if classification == 'Avionics':
             type = request.form.get('type')
-            cursor.execute('UPDATE avionics SET type = %s WHERE part_id = %s', (type, part_id,))
+            cursor.execute('UPDATE avionics SET classification = %s WHERE part_id = %s', (type, part_id,))
             mysql.connection.commit()
         elif classification == 'Engine':
             weight = request.form.get('weight')
@@ -162,21 +171,18 @@ def parts():
             mysql.connection.commit()
         return redirect('/parts')
 
-    cursor.execute('SELECT * FROM part')
-    parts = cursor.fetchall()
-    cursor.execute('SELECT c_name FROM company')
-    data = cursor.fetchall()
-    cursor.execute('SELECT * from avionics')
-    avionics = cursor.fetchall()
-    cursor.execute('SELECT * from engine')
-    engines = cursor.fetchall()
-    cursor.execute('SELECT * from wing')
-    wings = cursor.fetchall()
     return render_template("parts.html", parts=parts, data=data, avionics=avionics, engines=engines, wings=wings)
 
 @app.route("/aircraft", methods = ["GET", "POST"])
 def aircraft():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM aircraft')
+    aircrafts = cursor.fetchall()
+    cursor.execute('SELECT aircraft_name FROM aircraft_type')
+    data = cursor.fetchall()
+    cursor.execute('SELECT c_name FROM company WHERE is_airline = 1')
+    airlines = cursor.fetchall()
+
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -195,22 +201,51 @@ def aircraft():
         if request.form.getlist('check'):
             table = 'true'
 
-        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true", table=table)
+        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true", table=table, data=data, airlines=airlines)
 
-    elif request.method == 'POST' and 'modalfunc' in request.form:
-        reg_num = request.form.get('modalfunc')[1:]
-        cursor.execute('DELETE FROM aircraft where reg_num = %s', (reg_num,))
+    elif request.method == 'POST' and 'update' in request.form:
+        reg_num = request.form.get('name')
+        type = request.form.get('model')
+        date = request.form.get('date')
+        site = request.form.get('site')
+        cursor.execute('UPDATE aircraft set aircraft_name = %s, produce_date = %s, production_site = %s WHERE reg_num = %s', (type, date, site, reg_num,))
         mysql.connection.commit()
         return redirect('/aircraft')
 
+    elif request.method == 'POST' and 'modalfunc' in request.form:
+        reg_num = request.form.get('modalfunc')[1:]
+        val = request.form.get('ac')
+        if val == 'delete':
+            cursor.execute('DELETE FROM aircraft where reg_num = %s', (reg_num,))
+            mysql.connection.commit()
+            return redirect('/aircraft')
+        elif val == 'report':
+            cursor.execute('SELECT * from maintenance WHERE reg_num = %s', (reg_num,))
+            maintenance = cursor.fetchall()
+            cursor.execute('SELECT * from delivery where reg_num = %s', (reg_num,))
+            deliveries = cursor.fetchall()
+            cursor.execute('SELECT * from options where reg_num = %s', (reg_num,))
+            options = cursor.fetchall()
+            return render_template('aircraft_report.html', maintenance=maintenance, deliveries=deliveries, options=options, reg_num=reg_num)
 
-
-    cursor.execute('SELECT * FROM aircraft')
-    return render_template("aircraft.html", aircrafts=cursor.fetchall())
+    return render_template("aircraft.html", aircrafts=aircrafts, data=data, airlines=airlines)
 
 @app.route("/maintenance", methods = ["GET", "POST"])
 def maintenance():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM maintenance')
+    records = cursor.fetchall()
+    cursor.execute('SELECT c_name FROM company WHERE is_maintenance = 1')
+    data = cursor.fetchall()
+    cursor.execute('SELECT reg_num FROM aircraft')
+    data2 = cursor.fetchall()
+    cursor.execute('SELECT * from a_check')
+    a_checks = cursor.fetchall()
+    cursor.execute('SELECT * from c_check')
+    c_checks = cursor.fetchall()
+    cursor.execute('SELECT * from d_check')
+    d_checks = cursor.fetchall()
+
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -224,18 +259,54 @@ def maintenance():
         if val == '4':
             list = 'ORDER BY date DESC'
         
-        cursor.execute('SELECT * FROM maintenance WHERE c_name LIKE %s  or facility_loc LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        cursor.execute('SELECT * FROM maintenance WHERE c_name LIKE %s or facility_loc LIKE %s or reg_num LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%', '%%' + query + '%%'])
         table = None
         if request.form.getlist('check'):
             table = 'true'
-        return render_template("maintenance.html", records=cursor.fetchall(), search="true", table=table)
+        return render_template("maintenance.html", records=cursor.fetchall(), search="true", table=table, data=data, data2=data2, a_checks=a_checks, c_checks=c_checks, d_checks=d_checks)
 
-    cursor.execute('SELECT * FROM maintenance')
-    return render_template("maintenance.html", records=cursor.fetchall())
+    elif request.method == 'POST' and 'modalfunc' in request.form:
+        m_id = request.form.get('modalfunc')[1:]
+        cursor.execute('DELETE FROM maintenance where maintenance_id = %s', (m_id,))
+        mysql.connection.commit()
+        return redirect('/maintenance')
+
+    elif request.method == 'POST' and 'update' in request.form:
+        m_id = request.form.get('key')
+        date = request.form.get('date')
+        c_name = request.form.get('company')
+        facility_loc = request.form.get('facility_loc')
+        summary = request.form.get('summary')
+        reg_num = request.form.get('reg_num')
+        cursor.execute('UPDATE maintenance set c_name = %s, date = %s, facility_loc = %s, summary = %s, reg_num = %s WHERE maintenance_id = %s', (c_name, date, facility_loc, summary, reg_num, m_id))
+        if 'wing_check' in request.form:
+            flap_test = request.form.get('flap_test')
+            brake_test = request.form.get('brake_test')
+            damage_check = request.form.get('damage_check')
+            oxy_pres_check = request.form.get('oxy_pres_check')
+            cursor.execute('UPDATE a_check set flap_test = %s, brake_test = %s, damage_check = %s, oxy_pres_check = %s WHERE maintenance_id = %s', (flap_test, brake_test, damage_check, oxy_pres_check, m_id,))
+            mysql.connection.commit()
+        if 'door_check' in request.form:
+            door_check = request.form.get('door_check')
+            engine_check = request.form.get('engine_check')
+            fuel_pres_check = request.form.get('fuel_pres_check')
+            cursor.execute('UPDATE c_check set door_check = %s, engine_check = %s, fuel_pres_check = %s WHERE maintenance_id = %s', (door_check, engine_check, fuel_pres_check, m_id,))
+            mysql.connection.commit()
+        if 'flap_test' in request.form:
+            wing_check = request.form.get('wing_check')
+            floor_check = request.form.get('floor_check')
+            stab_check = request.form.get('stab_check')
+            cursor.execute('UPDATE d_check set wing_check = %s, floor_check = %s, stab_check = %s WHERE maintenance_id = %s', (wing_check, floor_check, stab_check, m_id,))
+            mysql.connection.commit()
+        return redirect('/maintenance')
+
+    return render_template("maintenance.html", records=records, data=data, data2=data2, a_checks=a_checks, c_checks=c_checks, d_checks=d_checks)
 
 @app.route("/company", methods = ["GET", "POST"])
 def company():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM company')
+    companies = cursor.fetchall()
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -255,9 +326,14 @@ def company():
         if request.form.getlist('check'):
             table = 'true'
         return render_template("company.html", companies=cursor.fetchall(), search="true", table=table)
+
+    elif request.method == 'POST' and 'modalfunc' in request.form:
+        c_id = request.form.get('modalfunc')[1:]
+        cursor.execute('DELETE from company WHERE c_id = %s', (c_id,))
+        mysql.connection.commit()
+        return redirect('/company')
             
-    cursor.execute('SELECT * FROM company')
-    return render_template("company.html", companies=cursor.fetchall())
+    return render_template("company.html", companies=companies)
 
 @app.route("/type", methods = ["GET", "POST"])
 def type():
@@ -288,6 +364,7 @@ def type():
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    global TEMP
     if not session.get("username"): 
         return redirect("/login")
     if request.method == 'POST' and "part_1" in request.form:
@@ -309,69 +386,61 @@ def contribute():
             cursor.execute('SELECT reg_num from aircraft')
             data2 = cursor.fetchall()
         return render_template('contribute.html', val=val, data=data, data2=data2)
+
     if request.method == 'POST' and "type_submit" in request.form:
-        name = request.form.get('name').replace(' ','')
+        name = request.form.get('name').replace(' ', '-')
         company = request.form.get('manu')
-        year = request.form.get('year').replace(' ', '')
-        engines = request.form.get('engines').replace(' ', '')
+        year = request.form.get('year')
+        engines = request.form.get('engines')
         size = request.form.get('size')
         cursor.execute('INSERT into aircraft_type VALUES (%s, %s, %s, %s, %s)', (name, company, year, size, engines,))
         mysql.connection.commit()
         return redirect('/records')
+
     elif request.method == 'POST' and "aircraft_submit" in request.form:
-        name = request.form.get('name').replace(' ','')
+        name = request.form.get('name').replace(' ', '-')
         model = request.form.get('model')
         date = datetime.strptime(request.form.get('date'),'%Y-%m-%d')
-        site = request.form.get('site').replace(' ', '')
-        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s)", (name, model, date, site,))
+        site = request.form.get('site')
+        TEMP = {'reg_num': name, 'model': model, 'prod_date': date, 'prod_site': site}
+        cursor.execute('SELECT c_name FROM company WHERE is_airline = 1')
+        return render_template('contribute.html', val = '2b', airlines=cursor.fetchall())
+        
+    elif request.method == 'POST' and 'aircraft_p2_submit' in request.form:
+        reg_num = TEMP['reg_num']
+        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s, %s)", (reg_num, TEMP['model'], TEMP['prod_date'], TEMP['prod_site'],))
         mysql.connection.commit()
-        return redirect('/records')
+        deliveries = request.form.get('deliveries').split('\r\n')
+        print(deliveries, file=sys.stdout)
+        for delivery in deliveries:
+            tokens = delivery.split(',')
+            print(tokens, file=sys.stdout)
+            airline = tokens[0]
+            if len(tokens) > 1:
+                date = datetime.strptime(tokens[1], '%Y-%m-%d')
+                cursor.execute('INSERT into delivery VALUES (%s, %s, %s)', (reg_num, airline, date,))
+                mysql.connection.commit()
+        options = request.form.get('options').split('\n')
+        for option in options:
+            if len(option) > 0:
+                cursor.execute('INSERT into options VALUES (%s, %s)', (reg_num, option))
+                mysql.connection.commit()
+        return redirect('/aircraft')
+
     elif request.method == 'POST' and 'part_submit' in request.form:
-        global TEMP
-        p_name = request.form.get('p_name').replace(' ', '')
+        p_name = request.form.get('p_name')
         c_name = request.form.get('company')
         cost = request.form.get('cost')
         subclass = request.form.get('classification')
         p_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
         TEMP = {'p_id': p_id, 'p_name': p_name, 'c_name': c_name, 'cost': cost}
         if subclass == 'Other':
+            cursor.execute('INSERT into part VALUES(%s, %s, %s, %s)', (p_id, p_name, c_name, cost,))
+            mysql.connection.commit()
             return redirect('/parts')
         else:
-            return render_template('contribute.html', val='7', subclass=subclass)
-    elif request.method == 'POST' and 'maintenance_submit' in request.form:
-        m_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
-        c_name = request.form.get('company')
-        date = datetime.strptime(request.form.get('date'),'%Y-%m-%d')
-        facility_loc = request.form.get('facility_loc').replace(' ', '')
-        summary = request.form.get('summary').replace(' ', '')
-        reg_num = request.form.get('reg_num')
-        print(reg_num, file=sys.stdout)
-        cursor.execute("INSERT into maintenance VALUES (%s, %s, %s, %s, %s, %s)", (m_id, c_name, date, facility_loc, summary, reg_num,))
-        mysql.connection.commit()
-        return redirect('/records')
-    elif request.method == 'POST' and 'company_next' in request.form:
-        global C_NAME, EST_DATE, ADDRESS, FUNCTIONS
-        C_NAME = request.form.get('c_name')
-        EST_DATE = request.form.get('est_date')
-        ADDRESS = request.form.get('address')
-        isProvider = int(str(request.form.get('provider')).replace('None', '0').replace('on', '1'))
-        isManufacturer = int(str(request.form.get('manufacturer')).replace('None', '0').replace('on', '1'))
-        isSupplier = int(str(request.form.get('supplier')).replace('None', '0').replace('on', '1'))
-        isAirline = int(str(request.form.get('airline')).replace('None', '0').replace('on', '1'))
-        FUNCTIONS = [isProvider, isManufacturer, isSupplier, isAirline]
-        if isManufacturer == 1 or isAirline == 1:
-            return render_template('contribute.html', val='6', data=FUNCTIONS)
-        else: 
-            cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (C_NAME, EST_DATE, ADDRESS, isProvider, isManufacturer, None, isAirline, None, None, isSupplier,))
-            mysql.connection.commit()
-            return redirect('/records')
-    elif request.method == 'POST' and 'company_submit' in request.form:
-        main_facility = request.form.get('main_faci')
-        carrier_type = request.form.get('carrier_type')
-        country = request.form.get('country')
-        cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (C_NAME, EST_DATE, ADDRESS, FUNCTIONS[0], FUNCTIONS[1], main_facility, FUNCTIONS[2], carrier_type, country, FUNCTIONS[3],))
-        mysql.connection.commit()
-        return redirect('/records')
+            return render_template('contribute.html', val='3b', subclass=subclass)
+
     elif request.method == 'POST' and 'part_p2_submit' in request.form:
         p_id = TEMP['p_id']
         cursor.execute('INSERT into part VALUES (%s, %s, %s, %s)', (TEMP['p_id'], TEMP['p_name'], TEMP['c_name'], TEMP['cost'],))
@@ -392,6 +461,69 @@ def contribute():
             cursor.execute('INSERT into wing VALUES (%s, %s, %s)', (p_id, material, span,))
             mysql.connection.commit()
         return redirect('/parts')
+
+    elif request.method == 'POST' and 'maintenance_submit' in request.form:
+        m_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
+        c_name = request.form.get('company')
+        date = datetime.strptime(request.form.get('date'),'%Y-%m-%d')
+        facility_loc = request.form.get('facility_loc')
+        summary = request.form.get('summary')
+        reg_num = request.form.get('reg_num')
+        TEMP = {'m_id': m_id, 'c_name': c_name, 'date': date, 'facility_loc': facility_loc, 'summary': summary, 'reg_num': reg_num}
+        check = request.form.get('check')
+        cursor.execute('SELECT p_name from part')
+        parts = cursor.fetchall()
+        return render_template('contribute.html', val='4b', check=check, parts=parts)
+
+    elif request.method == 'POST' and 'maintenance_p2_submit' in request.form:
+        m_id = TEMP['m_id']
+        cursor.execute("INSERT into maintenance VALUES (%s, %s, %s, %s, %s, %s)", (m_id, TEMP['c_name'], TEMP['date'], TEMP['facility_loc'], TEMP['summary'], TEMP['reg_num'],))
+        mysql.connection.commit()
+        if 'wing_check' in request.form:
+            flap_test = request.form.get('flap_test')
+            brake_test = request.form.get('brake_test')
+            damage_check = request.form.get('damage_check')
+            oxy_pres_check = request.form.get('oxy_pres_check')
+            cursor.execute('INSERT into a_check VALUES(%s, %s, %s, %s, %s)', (m_id, flap_test, brake_test, damage_check, oxy_pres_check,))
+            mysql.connection.commit()
+        if 'door_check' in request.form:
+            door_check = request.form.get('door_check')
+            engine_check = request.form.get('engine_check')
+            fuel_pres_check = request.form.get('fuel_pres_check')
+            cursor.execute('INSERT into c_check VALUES(%s, %s, %s, %s)', (m_id, door_check, engine_check, fuel_pres_check,))
+            mysql.connection.commit()
+        if 'flap_test' in request.form:
+            wing_check = request.form.get('wing_check')
+            floor_check = request.form.get('floor_check')
+            stab_check = request.form.get('stab_check')
+            cursor.execute('INSERT into d_check VALUES(%s, %s, %s, %s)', (m_id, wing_check, floor_check, stab_check,))
+            mysql.connection.commit()
+        return redirect('/maintenance')
+
+    elif request.method == 'POST' and 'company_next' in request.form:
+        c_name = request.form.get('c_name')
+        est_date = request.form.get('est_date')
+        address = request.form.get('address')
+        isProvider = int(str(request.form.get('provider')).replace('None', '0').replace('on', '1'))
+        isManufacturer = int(str(request.form.get('manufacturer')).replace('None', '0').replace('on', '1'))
+        isSupplier = int(str(request.form.get('supplier')).replace('None', '0').replace('on', '1'))
+        isAirline = int(str(request.form.get('airline')).replace('None', '0').replace('on', '1'))
+        c_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
+        TEMP = {'c_id': c_id, 'c_name': c_name, 'est_date': est_date, 'address': address, 'isProvider': isProvider, 'isManufacturer': isManufacturer, 'isSupplier': isSupplier, 'isAirline': isAirline}
+        if isManufacturer == 1 or isAirline == 1:
+            return render_template('contribute.html', val='5b', isManufacturer=isManufacturer, isAirline=isAirline)
+        else: 
+            cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (c_id, c_name, est_date, address, isProvider, isManufacturer, None, isAirline, None, None, isSupplier,))
+            mysql.connection.commit()
+            return redirect('/records')
+
+    elif request.method == 'POST' and 'company_submit' in request.form:
+        main_facility = request.form.get('main_faci')
+        carrier_type = request.form.get('carrier_type')
+        country = request.form.get('country')
+        cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (c_id, c_name, est_date, address, isProvider, isManufacturer, main_facility, isAirline, carrier_type, country, isSupplier,))
+        mysql.connection.commit()
+        return redirect('/records')
 
     return render_template('contribute.html')
 

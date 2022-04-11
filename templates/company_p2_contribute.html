@@ -1,22 +1,27 @@
-<h2>Company</h2>
-{% if data[1] == 1 %}
+{% if isManufacturer == 1 %}
+<h2>Manufacturer</h2>
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Main Facility</label>
-  <input name="main_faci" type="text" class="form-control" placeholder="Main Facility" required>
+  <input name="main_faci" type="text" class="form-control" placeholder="Main Facility" value="{{company.main_facility}}" required>
 </div>
 {% endif %}
-{% if data[3] == 1 %}
+{% if isAirline == 1 %}
+<h2>Airline</h2>
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Select carrier type</label>
+  {% set types = ['Budget', 'Flag', 'Charter'] %}
   <select name="carrier_type" class="form-control" id="exampleFormControlSelect1">
-    <option selected value="1">Budget</option>
-    <option value="2">Flag</option>
-    <option value="3">Charter</option>
+    {% for type in types %}
+      {% if type == company.carrier_type %}
+        <option selected value="{{type}}">{{type}}</option>
+      {% else %}
+        <option selected value="{{type}}">{{type}}</option>
+      {% endif %}
+    {% endfor %}
   </select>
 </div>   
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Country</label>
-  <input name="country" type="text" class="form-control" placeholder="Country" required>
+  <input name="country" type="text" class="form-control" placeholder="Country" value="{{company.country}}" required>
 </div>
 {% endif %}
-<button name="company_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>     
