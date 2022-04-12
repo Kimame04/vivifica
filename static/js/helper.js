@@ -89,22 +89,71 @@ function addOption(){
 }
 
 var arr = [];
+var dict = {};
 
 function addPart(){
   var table = document.getElementById('table');
-  var part = document.getElementById('replaced_parts')
+  var part = document.getElementById('replaced_parts');
   var name = part.options[part.selectedIndex].value;
-  if (arr.includes(name)){
-      document.getElementById(name).value ++;
+  var id = name.replace('-','__')
+  if (arr.includes(id)){
+      document.getElementById(id).value ++;
+      dict[id] ++
+      console.log(dict)
   } else {
       var row = table.insertRow();
       var p_name = row.insertCell();  
       p_name.innerHTML = name;
-      arr.push(name);
+      arr.push(id);
+      dict[id] = 1
       var qty = row.insertCell();
-      qty.innerHTML = '<input id=' + name + ' type=number min=1 max=999 value=1>';    
+      qty.innerHTML = `
+      <button type="button" class="btn btn-info btn-sm" onclick="decrementPart(${id})">
+      <i class="fa fa-minus"></i>
+      </button>
+      <input id=${id} type=number min=1 max=999 value=1 readonly>
+      <button type="button" class="btn btn-success btn-sm" onclick="incrementPart(${id})">
+      <i class="fa fa-plus"></i>
+      </button>
+      `
       var btn = row.insertCell();
-      btn.innerHTML = '<button class="btn btn-danger btn-sm" onclick=table.deleteRow(' + row.rowIndex + ');><i class="fa fa-x"></i></button>';
-      arr.splice(row.rowIndex - 1, 1);
+      btn.innerHTML = `
+      <button type="button" class="btn btn-danger btn-sm" onclick="deletePart(${id})">
+      <i class="fa fa-x"></i>
+      </button>
+      `
   }
+}
+
+function deletePart(name){
+  var table = document.getElementById('table');
+  var idx = $('table tr').index(name);
+  table.deleteRow(idx);
+  arr.splice(idx-1, 1);
+  postData(dict)
+  delete dict[name.id]
+}
+
+function incrementPart(id){
+  document.getElementById(id.id).value ++;
+  dict[id.id] ++
+  console.log(dict)
+  postData(dict)
+}
+
+function decrementPart(id){
+  if (document.getElementById(id.id).value > 1) {
+    document.getElementById(id.id).value --;
+    dict[id.id] --
+    console.log(dict)
+    postData(dict)
+  }
+}
+
+function postData(dict){
+  $.ajax({
+    url: '/postmethod',
+    type: 'POST',
+    data: dict,
+  });
 }

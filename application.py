@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 import random
 import string
+import json
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -21,6 +22,7 @@ app.config['MYSQL_DB'] = 'vivifica'
 mysql = MySQL(app)
 
 TEMP = None
+DICT = None
 
 @app.route("/")
 def index():
@@ -332,15 +334,31 @@ def company():
         cursor.execute('DELETE from company WHERE c_id = %s', (c_id,))
         mysql.connection.commit()
         return redirect('/company')
+
+    elif request.method == 'POST' and 'update' in request.form:
+        c_id = request.form.get('key')
+        c_name = request.form.get('c_name')
+        est_date = request.form.get('est_date')
+        address = request.form.get('address')
+        main_facility = request.form.get('main_faci')
+        carrier_type = request.form.get('carrier_type')
+        country = request.form.get('country')
+        cursor.execute('UPDATE company set c_name = %s, est_date = %s, address = %s, main_facility = %s, carrier_type = %s, country = %s WHERE c_id = %s', (c_name, est_date, address, main_facility, carrier_type, country, c_id,))
+        mysql.connection.commit()
+        return redirect('/company')
             
     return render_template("company.html", companies=companies)
 
 @app.route("/type", methods = ["GET", "POST"])
 def type():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM aircraft_type')
+    types = cursor.fetchall()
+    cursor.execute('SELECT c_name FROM company WHERE is_manufacturer = 1')
+    data = cursor.fetchall()
+
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
         val = request.form.get('sort')
         if val == '1':
@@ -352,19 +370,35 @@ def type():
         elif val == '4':
             list = 'ORDER BY c_name DESC'
 
-        cursor.execute('SELECT * FROM aircraft_type WHERE c_name LIKE %s' + list, ['%%' + query + '%%'])
+        cursor.execute('SELECT * FROM aircraft_type WHERE c_name LIKE %s or aircraft_name LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
         table = None
         if request.form.getlist('check'):
             table = 'true'
-        return render_template("type.html", types=cursor.fetchall(), search="true", table=table)
-            
-    cursor.execute('SELECT * FROM aircraft_type')
-    return render_template("type.html", types=cursor.fetchall())
+        return render_template("type.html", types=cursor.fetchall(), search="true", table=table, data=data)
+
+    elif request.method == 'POST' and 'update' in request.form:
+        t_id = request.form.get('key')
+        type_name = request.form.get('name')
+        c_name = request.form.get('manu')
+        year = request.form.get('year')
+        engines = request.form.get('engines')
+        size = request.form.get('size')
+        cursor.execute('UPDATE aircraft_type SET aircraft_name = %s, c_name = %s, year_introduced = %s, no_engines = %s, size_class = %s WHERE type_id = %s', (type_name, c_name, year, engines, size, t_id,))
+        mysql.connection.commit()
+        return redirect('/type')
+
+    elif request.method == 'POST' and 'modalfunc' in request.form:
+        t_id = request.form.get('modalfunc')[1:]
+        cursor.execute('DELETE FROM aircraft_type WHERE type_id = %s', (t_id,))
+        mysql.connection.commit()
+        return redirect('/type')
+    
+    return render_template("type.html", types=types, data=data)
 
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    global TEMP
+    global TEMP, DICT
     if not session.get("username"): 
         return redirect("/login")
     if request.method == 'POST' and "part_1" in request.form:
@@ -388,14 +422,31 @@ def contribute():
         return render_template('contribute.html', val=val, data=data, data2=data2)
 
     if request.method == 'POST' and "type_submit" in request.form:
-        name = request.form.get('name').replace(' ', '-')
+        t_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 20))
+        name = request.form.get('name')
         company = request.form.get('manu')
         year = request.form.get('year')
         engines = request.form.get('engines')
         size = request.form.get('size')
-        cursor.execute('INSERT into aircraft_type VALUES (%s, %s, %s, %s, %s)', (name, company, year, size, engines,))
+        TEMP = {'t_id': t_id, 'name': name, 'c_name': company, 'year': year, 'engines': engines, 'size': size}
+        cursor.execute('SELECT p_name FROM part')
+        parts = cursor.fetchall()
+        return render_template('contribute.html', val='1b', parts=parts)
+
+    elif request.method == 'POST' and "type_p2_submit" in request.form:
+        a_name = TEMP['name']
+        cursor.execute('INSERT into aircraft_type VALUES (%s, %s, %s, %s, %s, %s)', (TEMP['t_id'], TEMP['name'], TEMP['c_name'], TEMP['year'], TEMP['size'], TEMP['engines'],))
         mysql.connection.commit()
-        return redirect('/records')
+        print(DICT)
+        for key in DICT:
+            val = DICT[key]
+            key = key.replace('__','-')
+            cursor.execute('SELECT part_id FROM part WHERE p_name = %s', (key,))
+            p_id = cursor.fetchone()['part_id']
+            print(p_id, file=sys.stdout)
+            cursor.execute('INSERT into aircraft_parts VALUES (%s, %s, %s)', (a_name, p_id, val,))
+            mysql.connection.commit()
+        return redirect('/type')
 
     elif request.method == 'POST' and "aircraft_submit" in request.form:
         name = request.form.get('name').replace(' ', '-')
@@ -479,7 +530,7 @@ def contribute():
         m_id = TEMP['m_id']
         cursor.execute("INSERT into maintenance VALUES (%s, %s, %s, %s, %s, %s)", (m_id, TEMP['c_name'], TEMP['date'], TEMP['facility_loc'], TEMP['summary'], TEMP['reg_num'],))
         mysql.connection.commit()
-        if 'wing_check' in request.form:
+        if 'flap_test' in request.form:
             flap_test = request.form.get('flap_test')
             brake_test = request.form.get('brake_test')
             damage_check = request.form.get('damage_check')
@@ -526,6 +577,13 @@ def contribute():
         return redirect('/records')
 
     return render_template('contribute.html')
+
+@app.route('/postmethod', methods = ['POST'])
+def js_post():
+    global DICT
+    DICT = request.form.to_dict()
+    print(DICT, file=sys.stdout)
+    return 'transformed'
 
 if __name__ == "__main__":
     app.run(host="localhost", port=8000, debug=True)

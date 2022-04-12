@@ -3,7 +3,13 @@
 
     <form style="padding: 5%; margin-left: 10%; margin-right: 10%;" method="post">
       {% if val == '1' %}
+        {% set type = [] %}
         {% include 'type_contribute.html' %}
+        <button name="type_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>      
+      {% elif val == '1b' %}
+        {% include 'type_p2_contribute.html' %}
+        <button name="type_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      
+
       {% elif val == '2' %}
         {% set aircraft = [] %}
         {% include 'aircraft_contribute.html' %}

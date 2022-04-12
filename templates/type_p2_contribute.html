@@ -1,28 +1,26 @@
 <h2>Type Parts</h2>
 <div class="form-group" style="margin-top: 1%;">
     <label for="exampleFormControlSelect1">Parts</label>
-    <select name="airline" class="form-control" id="prt" required>
+    <select name="replaced_parts" class="form-control" id="replaced_parts" required>
       {% for model in parts %}
-        <option value='{{model.c_name}}'>{{model.p_name}}</option>
+        <option value='{{model.p_name}}'>{{model.p_name}}</option>
       {% endfor %}
     </select>
 </div>   
 <ul id='list_part' class="list-group"></ul>
 <input type="hidden" name="parts" id="parts">
-<button id="add_part" type="button" class="btn btn-outline-primary" style="margin-top: 1%;">Add</button>      
+<button id="add_part" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addPart()">Add</button>      
 <br>
 
-<script>
-    document.getElementById("add_part").onclick = function() {
-        var part = document.getElementById('prt');
-        var text = part.options[part.selectedIndex].value;
-        var node = document.createElement("li");
-        node.classList.add('list-group-item')
-        node.appendChild(document.createTextNode(text))
-        document.getElementById("list_part").appendChild(node);
+<table name="table" id="table" class="table table-dark table-hover table-sm table-striped">
+  <thead>
+      <tr data-bs-target="">
+        <th scope="col">Part Name</th>
+        <th scope="col">Qty</th>
+        <th scope="col">Action</th>
+      </tr>
+  </thead>
+  <tbody>
 
-        var parts = document.getElementById('parts');
-        parts.value += (text + '\n');
-    }
-</script>
-
+  </tbody>
+</table>

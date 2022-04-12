@@ -18,7 +18,9 @@ aria-hidden="true">
                     {% include 'company_contribute.html' %}
                     {% include 'company_p2_contribute.html' %}
                     {% set key = company.c_id %}
-                    
+                {% elif type %}
+                    {% include 'type_contribute.html' %}
+                    {% set key = type.type_id %}
                 {% endif %}
             </div>
             <div class="modal-footer justify-content" style="background-color: black;">
