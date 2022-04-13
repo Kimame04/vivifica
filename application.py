@@ -7,7 +7,8 @@ import sys
 from datetime import datetime
 import random
 import string
-import json
+import base64
+import copy
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -107,7 +108,7 @@ def bye():
 def parts():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    cursor.execute('SELECT * FROM part')
+    cursor.execute('SELECT * FROM part ORDER BY p_name ASC')
     parts = cursor.fetchall()
     cursor.execute('SELECT c_name FROM company')
     data = cursor.fetchall()
@@ -139,7 +140,7 @@ def parts():
         if request.form.getlist('check'):
             table = 'true'
         
-        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table, data=data, avionics=avionics, engines=engines, wings=wings)
+        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table, data=data, avionics=avionics, engines=engines, wings=wings, query=query)
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         p_id = request.form.get('modalfunc')[1:]
@@ -178,7 +179,7 @@ def parts():
 @app.route("/aircraft", methods = ["GET", "POST"])
 def aircraft():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM aircraft')
+    cursor.execute('SELECT * FROM aircraft ORDER BY reg_num asc')
     aircrafts = cursor.fetchall()
     cursor.execute('SELECT aircraft_name FROM aircraft_type')
     data = cursor.fetchall()
@@ -203,7 +204,7 @@ def aircraft():
         if request.form.getlist('check'):
             table = 'true'
 
-        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true", table=table, data=data, airlines=airlines)
+        return render_template("aircraft.html", aircrafts=cursor.fetchall(), search="true", table=table, data=data, airlines=airlines, query=query)
 
     elif request.method == 'POST' and 'update' in request.form:
         reg_num = request.form.get('name')
@@ -235,7 +236,7 @@ def aircraft():
 @app.route("/maintenance", methods = ["GET", "POST"])
 def maintenance():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM maintenance')
+    cursor.execute('SELECT * FROM maintenance ORDER BY date DESC')
     records = cursor.fetchall()
     cursor.execute('SELECT c_name FROM company WHERE is_maintenance = 1')
     data = cursor.fetchall()
@@ -265,13 +266,21 @@ def maintenance():
         table = None
         if request.form.getlist('check'):
             table = 'true'
-        return render_template("maintenance.html", records=cursor.fetchall(), search="true", table=table, data=data, data2=data2, a_checks=a_checks, c_checks=c_checks, d_checks=d_checks)
+        return render_template("maintenance.html", records=cursor.fetchall(), search="true", table=table, data=data, data2=data2, a_checks=a_checks, c_checks=c_checks, d_checks=d_checks, query=query)
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         m_id = request.form.get('modalfunc')[1:]
-        cursor.execute('DELETE FROM maintenance where maintenance_id = %s', (m_id,))
-        mysql.connection.commit()
-        return redirect('/maintenance')
+        func = request.form.get('mt')
+        if func == 'delete':
+            cursor.execute('DELETE FROM maintenance WHERE maintenance_id = %s', (m_id,))
+            mysql.connection.commit()
+            return redirect('/maintenance')
+        elif func == 'parts':
+            cursor.execute('SELECT * FROM maintenance WHERE maintenance_id = %s', (m_id,))
+            maint = cursor.fetchone()
+            cursor.execute('WITH t as (SELECT part_id, qty FROM replaced_parts natural join maintenance WHERE maintenance_id = %s) SELECT part_id, p_name, qty FROM t natural join part', (m_id,))
+            parts = cursor.fetchall()
+            return render_template('maintenance_parts.html', maint=maint, parts=parts)
 
     elif request.method == 'POST' and 'update' in request.form:
         m_id = request.form.get('key')
@@ -307,7 +316,7 @@ def maintenance():
 @app.route("/company", methods = ["GET", "POST"])
 def company():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM company')
+    cursor.execute('SELECT * FROM company ORDER BY c_name ASC')
     companies = cursor.fetchall()
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
@@ -327,7 +336,7 @@ def company():
         table = None
         if request.form.getlist('check'):
             table = 'true'
-        return render_template("company.html", companies=cursor.fetchall(), search="true", table=table)
+        return render_template("company.html", companies=cursor.fetchall(), search="true", table=table, query=query)
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         c_id = request.form.get('modalfunc')[1:]
@@ -352,7 +361,7 @@ def company():
 @app.route("/type", methods = ["GET", "POST"])
 def type():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM aircraft_type')
+    cursor.execute('SELECT * FROM aircraft_type ORDER BY aircraft_name ASC')
     types = cursor.fetchall()
     cursor.execute('SELECT c_name FROM company WHERE is_manufacturer = 1')
     data = cursor.fetchall()
@@ -374,7 +383,7 @@ def type():
         table = None
         if request.form.getlist('check'):
             table = 'true'
-        return render_template("type.html", types=cursor.fetchall(), search="true", table=table, data=data)
+        return render_template("type.html", types=cursor.fetchall(), search="true", table=table, data=data, query=query)
 
     elif request.method == 'POST' and 'update' in request.form:
         t_id = request.form.get('key')
@@ -389,9 +398,17 @@ def type():
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         t_id = request.form.get('modalfunc')[1:]
-        cursor.execute('DELETE FROM aircraft_type WHERE type_id = %s', (t_id,))
-        mysql.connection.commit()
-        return redirect('/type')
+        func = request.form.get('ty')
+        if func == 'delete':
+            cursor.execute('DELETE FROM aircraft_type WHERE type_id = %s', (t_id,))
+            mysql.connection.commit()
+            return redirect('/type')
+        elif func == 'parts':
+            cursor.execute('with t as (SELECT part_id, qty from aircraft_parts natural join aircraft_type WHERE type_id = %s) SELECT part_id, p_name, qty FROM t natural join part', (t_id,))
+            parts = cursor.fetchall()
+            cursor.execute('SELECT aircraft_name FROM aircraft_type WHERE type_id = %s', (t_id,))
+            type = cursor.fetchone()
+            return render_template('type_parts.html', parts=parts, t_id=t_id, type=type)
     
     return render_template("type.html", types=types, data=data)
 
@@ -437,13 +454,15 @@ def contribute():
         a_name = TEMP['name']
         cursor.execute('INSERT into aircraft_type VALUES (%s, %s, %s, %s, %s, %s)', (TEMP['t_id'], TEMP['name'], TEMP['c_name'], TEMP['year'], TEMP['size'], TEMP['engines'],))
         mysql.connection.commit()
-        print(DICT)
         for key in DICT:
             val = DICT[key]
-            key = key.replace('__','-')
+            if len(key) % 4 == 2:
+                key = key + '=='
+            elif len(key) % 4 == 3:
+                key = key + '='
+            key = base64.b64decode(key)
             cursor.execute('SELECT part_id FROM part WHERE p_name = %s', (key,))
             p_id = cursor.fetchone()['part_id']
-            print(p_id, file=sys.stdout)
             cursor.execute('INSERT into aircraft_parts VALUES (%s, %s, %s)', (a_name, p_id, val,))
             mysql.connection.commit()
         return redirect('/type')
@@ -458,24 +477,34 @@ def contribute():
         return render_template('contribute.html', val = '2b', airlines=cursor.fetchall())
         
     elif request.method == 'POST' and 'aircraft_p2_submit' in request.form:
+        TEMP['deliveries'] = copy.deepcopy(DICT)
+        return render_template('contribute.html', val='2c')
+
+    elif request.method == 'POST' and 'aircraft_p3_submit' in request.form:
         reg_num = TEMP['reg_num']
-        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s, %s)", (reg_num, TEMP['model'], TEMP['prod_date'], TEMP['prod_site'],))
+        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s)", (reg_num, TEMP['model'], TEMP['prod_date'], TEMP['prod_site'],))
         mysql.connection.commit()
-        deliveries = request.form.get('deliveries').split('\r\n')
-        print(deliveries, file=sys.stdout)
-        for delivery in deliveries:
-            tokens = delivery.split(',')
-            print(tokens, file=sys.stdout)
-            airline = tokens[0]
-            if len(tokens) > 1:
-                date = datetime.strptime(tokens[1], '%Y-%m-%d')
-                cursor.execute('INSERT into delivery VALUES (%s, %s, %s)', (reg_num, airline, date,))
-                mysql.connection.commit()
-        options = request.form.get('options').split('\n')
-        for option in options:
-            if len(option) > 0:
-                cursor.execute('INSERT into options VALUES (%s, %s)', (reg_num, option))
-                mysql.connection.commit()
+
+        deliveries = TEMP['deliveries']
+        for key in deliveries:
+            val = deliveries[key]
+            if len(key) % 4 == 2:
+                key = key + '=='
+            elif len(key) % 4 == 3:
+                key = key + '='
+            val = base64.b64decode(key).decode().split('_')
+            cursor.execute('INSERT into delivery VALUES (%s, %s, %s)', (reg_num, val[0], val[1],))
+            mysql.connection.commit()
+
+        for key in DICT:
+            val = DICT[key]
+            if len(key) % 4 == 2:
+                key = key + '=='
+            elif len(key) % 4 == 3:
+                key = key + '='
+            val = base64.b64decode(key)
+            cursor.execute('INSERT into options VALUES (%s, %s)', (reg_num, val,))
+            mysql.connection.commit()
         return redirect('/aircraft')
 
     elif request.method == 'POST' and 'part_submit' in request.form:

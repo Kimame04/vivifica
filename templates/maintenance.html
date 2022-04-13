@@ -16,14 +16,25 @@
                 </select>
                 <button class="input-group-text border-0" id="search-addon" type="submit"><i class="fas fa-search"></i></button>
             </div>    
-            <div class="form-check form-switch">
-              <input id="check" name="check" value="check" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-              <label class="form-check-label" for="flexSwitchCheckDefault" style="color: white;">Display as table</label>
-            </div>    
+            {% if query and not records %}
+            {% include 'no_result.html' %}
+            {% elif query %}
+              <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Query</span>
+                </div>
+                <input class="form-control" value="{{query}}" style="display: inline;" readonly>
+              </div>
+            {% endif %}
+            <div class="custom-control custom-switch">
+              <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
+              <label class="custom-control-label" for="customSwitches">Display result as table</label>
+            </div>
+    
         </form>
 
         {% if table %}
-          <table class="table table-dark">
+          <table class="table table-dark" style="margin-top: 1%;">
               <thead>
                   <tr data-bs-target="">
                     <th scope="col">#</th>
@@ -57,7 +68,7 @@
                 {% endif %}
             {% endfor %}
 
-        {% set target = '#A' +  record.maintenance_id|replace(" ","") %}
+            {% set target = '#A' +  record.maintenance_id|replace(" ","") %}
             {% set id = 'A' + record.maintenance_id|replace(" ","") %}
             {% set target_2 = '#B' + record.maintenance_id|replace(" ", '') %}
             {% set id_2 = 'B' + record.maintenance_id|replace(" ", '') %}
@@ -86,10 +97,31 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      <p class="text-dark">{{'Location: ' + record.facility_loc}}</p>
-                      <p class="text-dark">{{'Date: ' + record.date.strftime('%Y-%m-%d')}}</p>
-                      <p class="text-dark">{{'Provider: ' + record.c_name}}</p>
-                      <p class="text-dark">{{'Summary: ' + record.summary}}</p>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Location</span>
+                        </div>
+                        <input class="form-control" value="{{record.facility_loc}}" style="display: inline;" readonly>
+                      </div>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Date</span>
+                        </div>
+                        <input class="form-control" value="{{record.date}}" style="display: inline;" readonly>
+                      </div>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Provider</span>
+                        </div>
+                        <input class="form-control" value="{{record.c_name}}" style="display: inline;" readonly>
+                      </div>
+                      <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Summary</span>
+                        </div>
+                        <input class="form-control" value="{{record.summary}}" style="display: inline;" readonly>
+                      </div>
+
                       {% if vars.d_check %}
                       <div class="chip">D-check</div>
                       {% elif vars.c_check %}
@@ -99,27 +131,28 @@
                       {% endif %}
                     </div>
                     <div class="modal-footer">
-                      <div class="modal-footer">
                         <form method="post">
                             <input type="hidden" name="modalfunc" value="{{id}}">
-                            <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
+                            <button name="mt" value="parts" type="submit" class="btn btn-outline-dark">
+                              <i class="fa fa-puzzle-piece"></i> Parts
+                            </button>                              
+                            <button name="mt" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
                                 <i class="fa fa-pencil"></i>
                             </button>                    
-                            <button name="ps" value="delete" type="submit" class="btn btn-danger">
+                            <button name="mt" value="delete" type="submit" class="btn btn-danger">
                                 <i class="fa fa-trash-can"></i>
                             </button>                    
                         </form>
-                      </div>
                     </div>
                   </div>
                 </div>
             </div>
             {% include 'side_modal.html' %}
 
-        {% endfor %}    
+        {% endfor %} 
         {% if table %}
           </tbody>
-          </table>
+        </table>
         {% endif %}
 
         <h1 style="margin-top: 50%"></h1>

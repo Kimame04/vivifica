@@ -12,7 +12,6 @@ aria-hidden="true">
                     {% include 'aircraft_contribute.html' %}
                 {% elif record %}
                     {% include 'maintenance_contribute.html' %}
-                    {% include 'maintenance_p2_contribute.html' %}
                     {% set key = record.maintenance_id %}
                 {% elif company %}
                     {% include 'company_contribute.html' %}

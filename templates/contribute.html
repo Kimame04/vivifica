@@ -16,7 +16,10 @@
         <button name="aircraft_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>      
       {% elif val == '2b' %}
         {% include 'aircraft_p2_contribute.html' %}
-        <button name="aircraft_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 3%;">Submit</button>      
+        <button name="aircraft_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 3%;">Next</button>     
+      {% elif val == '2c' %}
+        {% include 'aircraft_p3_contribute.html' %}
+        <button name="aircraft_p3_submit" type="submit" class="btn btn-primary" style="margin-top: 3%;">Submit</button>     
       {% elif val == '3' %}
         {% set part = [] %}
         {% set vars = {'avi': None, 'eng': None, 'win': None} %}

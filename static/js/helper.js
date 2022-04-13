@@ -1,3 +1,6 @@
+var arr = [];
+var dict = {};
+
 function redirect(name){
   var ele = document.getElementById(name)
   ele.scrollIntoView()
@@ -88,14 +91,13 @@ function addOption(){
   options.value += (text + '\n');
 }
 
-var arr = [];
-var dict = {};
 
-function addPart(){
-  var table = document.getElementById('table');
-  var part = document.getElementById('replaced_parts');
+function addPart(table_id, select_id){
+  var table = document.getElementById(table_id);
+  var part = document.getElementById(select_id);
   var name = part.options[part.selectedIndex].value;
-  var id = name.replace('-','__')
+  var id = btoa(name).replaceAll("=",'')
+  console.log(id)
   if (arr.includes(id)){
       document.getElementById(id).value ++;
       dict[id] ++
@@ -118,16 +120,16 @@ function addPart(){
       `
       var btn = row.insertCell();
       btn.innerHTML = `
-      <button type="button" class="btn btn-danger btn-sm" onclick="deletePart(${id})">
+      <button type="button" class="btn btn-danger btn-sm" onclick="deletePart(${id}, ${table_id})">
       <i class="fa fa-x"></i>
       </button>
       `
   }
 }
 
-function deletePart(name){
-  var table = document.getElementById('table');
-  var idx = $('table tr').index(name);
+function deletePart(name, table_id){
+  var table = document.getElementById(table_id.id);
+  var idx = $('table tr').index(table);
   table.deleteRow(idx);
   arr.splice(idx-1, 1);
   postData(dict)
@@ -156,4 +158,52 @@ function postData(dict){
     type: 'POST',
     data: dict,
   });
+}
+
+function addDelivery(table_id, airline_id, date_id){
+  var table = document.getElementById(table_id)
+  var airline = document.getElementById(airline_id)
+  var date = document.getElementById(date_id)
+  var a_name = airline.options[airline.selectedIndex].value
+  var id = btoa(a_name + '_' + date.value)
+  if (arr.includes(id)){
+    alert('Delivery already exists.')
+  } else {
+    arr.push(id)
+    var row = table.insertRow()
+    var airline_cell = row.insertCell()
+    airline_cell.innerHTML = a_name
+    var date_cell = row.insertCell()
+    date_cell.innerHTML = date.value
+    var action_cell = row.insertCell()
+    action_cell.innerHTML = `
+    <button type="button" id=${id} class="btn btn-danger btn-sm" onclick="deletePart(${id}, ${table_id})">
+    <i class="fa fa-x"></i>
+    </button>
+    `
+    dict[id] = id
+    postData(dict)
+  }
+}
+
+function addOption(table_id, option_id){
+  var table = document.getElementById(table_id)
+  var option = document.getElementById(option_id).value
+  var id = btoa(option).replaceAll('=','')
+  if (arr.includes(id)){
+    alert('option already exists')
+  } else{
+    arr.push(id)
+    var row = table.insertRow()
+    var name_cell = row.insertCell()
+    name_cell.innerHTML = option
+    var action_cell = row.insertCell()
+    action_cell.innerHTML = `
+    <button type="button" id=${id} class="btn btn-danger btn-sm" onclick="deletePart(${id}, ${table_id})">
+    <i class="fa fa-x"></i>
+    </button>
+    `
+    dict[id] = id
+    postData(dict)
+  }
 }

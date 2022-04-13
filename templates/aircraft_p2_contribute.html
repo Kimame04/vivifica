@@ -1,4 +1,4 @@
-<h2>Deliveries and Options</h2>
+<h2>Deliveries</h2>
 
 <div class="form-group" style="margin-top: 1%;">
   <label for="exampleFormControlSelect1">Airline</label>
@@ -11,20 +11,21 @@
 <div class="form-group" style="margin-top: 1%;">
   <div id="date-picker-example" inline="true">
     <label for="example">Delivery Date</label>
-    <input id="date" type="date" id="example" class="form-control" required>
+    <input id="date" type="date" class="form-control" required>
   </div>      
 </div>
-<ul id='list' class="list-group"></ul>
-<input type="hidden" name="deliveries" id="deliveries">
-<button id="add" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addDelivery()">Add</button>      
+<table name="table" id="table" class="table table-dark table-hover table-sm table-striped">
+  <thead>
+      <tr data-bs-target="">
+        <th scope="col">Airline Name</th>
+        <th scope="col">Date</th>
+        <th scope="col">Action</th>
+      </tr>
+  </thead>
+  <tbody>
 
-<div class="form-group" style="margin-top: 1%;">
-<label for="exampleFormControlSelect1">Options</label>
-<input name="site" type="text" class="form-control" id="opt" placeholder="Optional">
-</div>
-<ul id='list_option' class="list-group"></ul>
-<input type="hidden" name="options" id="options">
-<button id="add_option" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addOption()">Add</button>      
+  </tbody>
+</table>
+
+<button id="add" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addDelivery('table', 'airline', 'date')">Add</button>      
 <br>
-
-

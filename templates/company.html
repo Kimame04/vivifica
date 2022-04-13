@@ -17,11 +17,21 @@
               <button class="input-group-text border-0" id="search-addon" type="submit"><i class="fas fa-search"></i></button>
 
           </div>    
-            <div class="form-check form-switch">
-              <input id="check" name="check" value="check" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-              <label class="form-check-label" for="flexSwitchCheckDefault" style="color: white;">Display as table</label>
-            </div>    
-        </form>
+          {% if query and not companies %}
+          {% include 'no_result.html' %}
+          {% elif query %}
+            <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Query</span>
+              </div>
+              <input class="form-control" value="{{query}}" style="display: inline;" readonly>
+            </div>
+          {% endif %}
+          <div class="custom-control custom-switch">
+            <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
+            <label class="custom-control-label" for="customSwitches">Display result as table</label>
+          </div>
+      </form>
 
         {% if table %}
           <table class="table table-dark">
@@ -68,17 +78,48 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <p class="text-dark">{{'Date: ' + company.est_date|string}}</p>
-                    <p class="text-dark">{{'Address: ' + company.address}}</p>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Est. Date</span>
+                      </div>
+                      <input class="form-control" value="{{company.est_date}}" style="display: inline;" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Address</span>
+                      </div>
+                      <input class="form-control" value="{{company.address}}" style="display: inline;" readonly>
+                    </div>
                     {% if company.is_maintenance == 1 %}
                     <div class="chip">Maintenance Provider</div>
                     {% endif %}
                     {% if company.is_manufacturer == 1 %}
                     <div class="chip">Manufacturer</div>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Main Facility</span>
+                      </div>
+                      <input class="form-control" value="{{company.main_facility}}" style="display: inline;" readonly>
+                    </div>
+
                     {% set isManufacturer = 1 %}
                     {% endif %}
                     {% if company.is_airline == 1 %}
                     <div class="chip">Airline</div>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Carrier Type</span>
+                      </div>
+                      <input class="form-control" value="{{company.carrier_type}}" style="display: inline;" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Country</span>
+                      </div>
+                      <input class="form-control" value="{{company.country}}" style="display: inline;" readonly>
+                    </div>
+
+
                     {% set isAirline = 1 %}
                     {% endif %}
                     {% if company.is_supplier == 1 %}

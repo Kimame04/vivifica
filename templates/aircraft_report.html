@@ -4,7 +4,12 @@
 
 <div style="margin: 2%;">
     <h2>Aircraft Report</h2>
-    <h4>{{reg_num}}</h3>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Register Number</span>
+        </div>
+        <input class="form-control" value="{{reg_num}}" style="display: inline;" disabled>  
+    </div>
     
     <h3 style="margin-top: 3%">Maintenance Record</h3>
     <table class="table table-dark table-hover table-sm table-striped">

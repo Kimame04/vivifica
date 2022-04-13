@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div style="margin: 3%;">
+    <h2>Parts </h2>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Type Name</span>
+        </div>
+        <input class="form-control" value="{{type.aircraft_name}}" style="display: inline;" readonly>
+    </div>
+    {% for part in parts %}
+    <div class="card" style="width: 12rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body" data-bs-toggle="modal" data-bs-target='{{target}}'>
+            <h5 class="card-title">{{part.p_name}}</h5>
+            <h6 class="card-subtitle">{{ part.qty }} </h6>
+        </div>
+    </div>
+    {% endfor %}
+    {% if not parts %}
+    {% include 'no_result.html' %}
+    {% endif %}
+
+</div>
+<section style="margin-top: 50%;"></section>
+
+{% endblock %}
