@@ -16,20 +16,27 @@
                 </select>
                 <button class="input-group-text border-0" id="search-addon" type="submit"><i class="fas fa-search"></i></button>
             </div>    
-            {% if query and not records %}
-            {% include 'no_result.html' %}
-            {% elif query %}
+            <div class="custom-control custom-switch">
+              <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
+              <label class="custom-control-label" for="customSwitches">Display result as table</label>
+            </div>
+
+            {% if query %}
               <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
                 <div class="input-group-prepend">
                   <span class="input-group-text">Query</span>
                 </div>
                 <input class="form-control" value="{{query}}" style="display: inline;" readonly>
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Results</span>
+                </div>
+                <input class="form-control" value="{{records|length}}" style="display: inline;" readonly>
+    
               </div>
             {% endif %}
-            <div class="custom-control custom-switch">
-              <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
-              <label class="custom-control-label" for="customSwitches">Display result as table</label>
-            </div>
+            {% if query and not records %}
+            {% include 'no_result.html' %}
+            {% endif %}
     
         </form>
 
@@ -129,13 +136,17 @@
                       {% elif vars.a_check %}
                       <div class="chip">A-check</div>
                       {% endif %}
+                      <form method="post">
+                        <input name="maintenance_functions" value="{{id}}" hidden>
+                        <button name="mt" value="parts" type="submit" class="btn btn-outline-dark btn-sm">
+                          <i class="fa fa-puzzle-piece"></i> Replaced Parts
+                        </button>                              
+                      </form>
                     </div>
                     <div class="modal-footer">
+                      {% if session.isAdmin == '1' %}
                         <form method="post">
                             <input type="hidden" name="modalfunc" value="{{id}}">
-                            <button name="mt" value="parts" type="submit" class="btn btn-outline-dark">
-                              <i class="fa fa-puzzle-piece"></i> Parts
-                            </button>                              
                             <button name="mt" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
                                 <i class="fa fa-pencil"></i>
                             </button>                    
@@ -143,11 +154,14 @@
                                 <i class="fa fa-trash-can"></i>
                             </button>                    
                         </form>
+                        {% endif %}
                     </div>
                   </div>
                 </div>
             </div>
+            {% if session.isAdmin == '1' %}
             {% include 'side_modal.html' %}
+            {% endif %}
 
         {% endfor %} 
         {% if table %}

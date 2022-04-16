@@ -2,7 +2,6 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/records.css')}}">
 {% block body %}
 
-  {% if session.username %}
     <section class="section">
       <p class="text" style="margin-top: 1%; ">You are currently logged in as {{ session.username }} 
         <a href="/logout" >Log Out</a>
@@ -48,15 +47,39 @@
   
     </div>
 
-    <div style="text-align: center;">
-      <form method="post">
-        <button name="contribute" type="submit" class="btn btn-primary btn-rounded btn-floating" style="margin-top: 1%; width: 20%;">Contribute</button>
-      </form>
+    {% if session.isAdmin == '1' %}
+
+    <div style="margin-left: 2%; margin-right: 2%">
+      <div class="card" style="margin-top: 5%;">
+        <div class="card-body">
+          <h5 class="card-title">Contribute</h5>
+          <p class="card-text">Add a new entry into Vivifica's ever-expanding database.</p>
+          <form method="post">
+            <button name="contribute" type="submit" class="btn btn-primary">Go</a>
+          </form>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 1%;">
+        <form method="post">
+          <div class="card-body">
+            <h5 class="card-title">Aircraft Report</h5>
+            <p class="card-text">Retrieve all the information regarding an aircraft, from maintenance records, to airline deliveries, to options included.</p>
+            <select class="form-control" name="aircraft_report">
+              {% for aircraft in aircrafts %}
+              <option>{{aircraft.reg_num}}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <button type="submit" class="btn btn-primary">Go</a>
+          </div>
+        </form>
+      </div>
     </div>
+
+    {% else %}
+    {% include 'be_an_admin.html' %}
+    {% endif %}
 
     <h1 style="margin-top: 50%"></h1>
 
-  {% else %}
-    You are not logged in. <a href="/login">Log In</a>
-  {% endif %}
 {% endblock %}

@@ -160,50 +160,112 @@ function postData(dict){
   });
 }
 
-function addDelivery(table_id, airline_id, date_id){
-  var table = document.getElementById(table_id)
-  var airline = document.getElementById(airline_id)
-  var date = document.getElementById(date_id)
-  var a_name = airline.options[airline.selectedIndex].value
-  var id = btoa(a_name + '_' + date.value)
-  if (arr.includes(id)){
-    alert('Delivery already exists.')
-  } else {
-    arr.push(id)
-    var row = table.insertRow()
-    var airline_cell = row.insertCell()
-    airline_cell.innerHTML = a_name
-    var date_cell = row.insertCell()
-    date_cell.innerHTML = date.value
-    var action_cell = row.insertCell()
-    action_cell.innerHTML = `
-    <button type="button" id=${id} class="btn btn-danger btn-sm" onclick="deletePart(${id}, ${table_id})">
-    <i class="fa fa-x"></i>
-    </button>
-    `
-    dict[id] = id
-    postData(dict)
-  }
-}
-
-function addOption(table_id, option_id){
+function addOption(table_id, option_id, reg_num_id){
   var table = document.getElementById(table_id)
   var option = document.getElementById(option_id).value
-  var id = btoa(option).replaceAll('=','')
-  if (arr.includes(id)){
-    alert('option already exists')
+  var reg_num = document.getElementById(reg_num_id).value
+  var key = reg_num + option
+  var result = {'reg_num': reg_num, 'option': option, 'func': 'add'}
+  if (arr.includes(key)){
+    alert('Option already exists')
   } else{
-    arr.push(id)
+    arr.push(key)
     var row = table.insertRow()
     var name_cell = row.insertCell()
     name_cell.innerHTML = option
     var action_cell = row.insertCell()
     action_cell.innerHTML = `
-    <button type="button" id=${id} class="btn btn-danger btn-sm" onclick="deletePart(${id}, ${table_id})">
-    <i class="fa fa-x"></i>
+    <button type="button" class="btn btn-danger btn-sm" onclick="deleteOption(this, ${table_id})">
+    <i class="fa fa-trash-can"></i>
     </button>
     `
-    dict[id] = id
-    postData(dict)
+    $.ajax({
+      url: 'manageOption',
+      type: 'POST',
+      data: result,
+    })
+  }
+}
+
+function deleteOption(r, table_id){
+  var i = r.parentNode.parentNode.rowIndex
+  if (table_id.id){
+    document.getElementById(table_id.id).deleteRow(i)
+  } else {
+    document.getElementById(table_id).deleteRow(i)
+  }
+  arr.splice(i-1, 1);
+  var cells = r.parentNode.parentNode.getElementsByTagName('td')
+  var option = cells[0].innerHTML
+  var reg_num = cells[1].innerHTML
+  var result = {'option': option, 'reg_num': reg_num, 'func': 'delete'}
+  $.ajax({
+    url: 'manageOption',
+    type: 'POST',
+    data: result,
+  })
+
+}
+
+function addDelivery(table_id, airline_id, date_id, reg_num_id){
+  var table = document.getElementById(table_id)
+  var airline_name = document.getElementById(airline_id).value
+  var delivery_date = document.getElementById(date_id).value
+  var reg_num = document.getElementById(reg_num_id).value
+  var key = reg_num + airline_name + delivery_date
+  var result = {'reg_num': reg_num, 'name': airline_name, 'date': delivery_date, 'type': 'add'}
+
+  if (arr.includes(key)){
+    alert('Delivery already exists')
+  } else {
+    arr.push(key)
+    var row = table.insertRow()
+    var airline_cell = row.insertCell()
+    airline_cell.innerHTML = airline_name
+    var date = row.insertCell()
+    date.innerHTML = delivery_date
+    var action_cell = row.insertCell()
+    action_cell.innerHTML = `
+    <button type="button" class="btn btn-danger btn-sm" onclick="deleteDelivery(this, ${table_id})">
+    <i class="fa fa-trash-can"></i>
+    </button>
+    `
+    $.ajax({
+      url: 'manageDelivery',
+      type: 'POST',
+      data: result,
+    })
+  }
+}
+
+function deleteDelivery(r, table_id){
+  var i = r.parentNode.parentNode.rowIndex;
+  if (table_id.id){
+    document.getElementById(table_id.id).deleteRow(i);
+  } else {
+    document.getElementById(table_id).deleteRow(i);
+  }
+  arr.splice(i-1, 1);
+  var cells = r.parentNode.parentNode.getElementsByTagName("td");
+  var airline_name = cells[0].innerHTML
+  var date = cells[1].innerHTML
+  var reg_num = cells[2].innerHTML
+  var result = {'reg_num': reg_num, 'name': airline_name, 'date': date, 'type': 'delete'}
+  $.ajax({
+    url: 'manageDelivery',
+    type: 'POST',
+    data: result,
+  })
+}
+
+function changeFilterState(r, range_id){
+  var slider = document.getElementById(range_id);
+  if ($(r).is(':checked')) {
+    switchStatus = $(r).is(':checked');
+    slider.disabled = false
+  }
+  else {
+      switchStatus = $(r).is(':checked');
+      slider.disabled = true
   }
 }

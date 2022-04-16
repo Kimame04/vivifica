@@ -17,21 +17,28 @@
               <button class="input-group-text border-0" id="search-addon" type="submit"><i class="fas fa-search"></i></button>
 
           </div>    
-          {% if query and not companies %}
-          {% include 'no_result.html' %}
-          {% elif query %}
-            <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Query</span>
-              </div>
-              <input class="form-control" value="{{query}}" style="display: inline;" readonly>
-            </div>
-          {% endif %}
           <div class="custom-control custom-switch">
             <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
             <label class="custom-control-label" for="customSwitches">Display result as table</label>
           </div>
-      </form>
+
+          {% if query %}
+          <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Query</span>
+            </div>
+            <input class="form-control" value="{{query}}" style="display: inline;" readonly>
+            <div class="input-group-prepend">
+              <span class="input-group-text">Results</span>
+            </div>
+            <input class="form-control" value="{{companies|length}}" style="display: inline;" readonly>
+
+          </div>
+        {% endif %}
+        {% if query and not companies %}
+        {% include 'no_result.html' %}
+        {% endif %}
+  </form>
 
         {% if table %}
           <table class="table table-dark">
@@ -47,10 +54,10 @@
 
         {% for company in companies %}
               
-            {% set target = '#A' + company.c_id %}
-            {% set id = 'A' + company.c_id %}
-            {% set target_2 = '#B' + company.c_id %}
-            {% set id_2 = 'B' + company.c_id %}
+            {% set target = '#A' + company.c_name|replace(' ','')|replace('.','') %}
+            {% set id = 'A' + company.c_name|replace(' ','')|replace('.','') %}
+            {% set target_2 = '#B' + company.c_name|replace(' ','')|replace('.','') %}
+            {% set id_2 = 'B' + company.c_name|replace(' ','')|replace('.','') %}
             {% set functions = [None, None] %}
 
             {% if table %}
@@ -127,6 +134,7 @@
                     {% endif %}
                   </div>
                   <div class="modal-footer">
+                    {% if session.isAdmin == '1' %}
                     <form method="post">
                         <input type="hidden" name="modalfunc" value="{{id}}">
                         <button name="ps" value="edit" type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="{{target_2}}">
@@ -136,11 +144,14 @@
                             <i class="fa fa-trash-can"></i>
                         </button>                    
                     </form>
+                    {% endif %}
                   </div>
                </div>
               </div>
           </div>
+          {% if session.isAdmin == '1' %}
           {% include 'side_modal.html' %}
+          {% endif %}
         {% endfor %}   
     
         {% if table %}

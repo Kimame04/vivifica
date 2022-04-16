@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, url_for
 from flask_session import Session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
@@ -62,12 +62,13 @@ def login():
             elif not username or not password or not email:
                 return render_template('login.html', message = "Form incomplete!")
             else:
-                cursor.execute('INSERT INTO account VALUES (%s, %s, %s)', (username, password, email,))
+                cursor.execute('INSERT INTO account VALUES (%s, %s, %s, %s)', (username, password, email, 0))
                 mysql.connection.commit()
                 cursor.execute('SELECT * FROM account WHERE username = %s', (username,))
                 account = cursor.fetchone()
                 session['loggedin'] = True
                 session['username'] = account['username']
+                session['isAdmin'] = 0
                 return redirect("/register")
     return render_template("login.html")
 
@@ -86,7 +87,8 @@ def logout():
     session["username"] = None
     session["loggedin"] = None
     session["id"] = None
-    return redirect("/records")
+    session['isAdmin'] = None
+    return redirect("/")
 
 @app.route("/pricing")
 def pricing():
@@ -94,11 +96,36 @@ def pricing():
 
 @app.route("/records", methods=["GET","POST"])
 def records():
+    checkUser()
     if not session.get("username"): 
         return redirect("/login")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT reg_num FROM aircraft')
+    aircrafts = cursor.fetchall()
     if request.method == 'POST' and "contribute" in request.form:
         return redirect('/contribute')
-    return render_template("records.html")
+    elif request.method == 'POST' and 'adminify' in request.form:
+        cursor.execute('UPDATE account set isAdmin = 1 WHERE username = %s', (session['username'],))
+        mysql.connection.commit()
+        return redirect('/records')
+    elif request.method == 'POST' and 'aircraft_report' in request.form:
+        reg_num = request.form.get('aircraft_report')
+        cursor.execute('SELECT * FROM aircraft WHERE reg_num = %s', (reg_num,))
+        aircraft = cursor.fetchone()
+        cursor.execute('SELECT * FROM aircraft_type WHERE aircraft_name = %s', (aircraft['aircraft_name'],))
+        type = cursor.fetchone()
+        cursor.execute('SELECT * FROM aircraft_parts LEFT JOIN part on aircraft_parts.part_id = part.part_id WHERE aircraft_name = %s', (type['aircraft_name'],))
+        type_parts = cursor.fetchall()
+        cursor.execute('SELECT * FROM options WHERE reg_num = %s', (reg_num,))
+        options = cursor.fetchall()
+        cursor.execute('SELECT * FROM delivery WHERE reg_num = %s', (reg_num,))
+        deliveries = cursor.fetchall()
+        cursor.execute('call generateFullMaintenanceRecord(%s)', (reg_num,))
+        full_records = cursor.fetchall()
+        cursor.execute('call generateFullReplacedParts(%s)', (reg_num,))
+        replaced_parts = cursor.fetchall()
+        return render_template('full_aircraft_report.html', aircraft=aircraft, type=type, type_parts=type_parts, options=options, deliveries=deliveries, full_records=full_records, replaced_parts=replaced_parts)
+    return render_template("records.html", aircrafts=aircrafts)
 
 @app.route("/bye")
 def bye():
@@ -106,6 +133,7 @@ def bye():
 
 @app.route("/parts", methods = ["GET", "POST"])
 def parts():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
     cursor.execute('SELECT * FROM part ORDER BY p_name ASC')
@@ -118,10 +146,16 @@ def parts():
     engines = cursor.fetchall()
     cursor.execute('SELECT * from wing')
     wings = cursor.fetchall()
+    cursor.execute('SELECT max(cost) as max_cost FROM part')
+    cost_max = cursor.fetchone()
+    cursor.execute('SELECT min(cost) as min_cost FROM part')
+    cost_min = cursor.fetchone()
 
 
     if request.method == 'POST' and 'query' in request.form:
         query = request.form.get('query')
+        min = request.form.get('cost_display')
+        print(min)
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         list = ''
         val = request.form.get('sort')
@@ -134,13 +168,14 @@ def parts():
         if val == '4':
             list = 'ORDER BY c_name DESC'
 
-        cursor.execute('SELECT * FROM part WHERE p_name LIKE %s  or c_name LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        #cursor.execute('SELECT * FROM part WHERE p_name LIKE %s  or c_name LIKE %s' + list, ['%%' + query + '%%', '%%' + query + '%%'])
+        cursor.execute('call searchParts(%s, %s)', (query,min))
         
         table = None
         if request.form.getlist('check'):
             table = 'true'
         
-        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table, data=data, avionics=avionics, engines=engines, wings=wings, query=query)
+        return render_template("parts.html", parts=cursor.fetchall(), search="true", table=table, data=data, avionics=avionics, engines=engines, wings=wings, query=query, cost_min=cost_min, cost_max=cost_max)
 
     elif request.method == 'POST' and 'modalfunc' in request.form:
         p_id = request.form.get('modalfunc')[1:]
@@ -174,10 +209,11 @@ def parts():
             mysql.connection.commit()
         return redirect('/parts')
 
-    return render_template("parts.html", parts=parts, data=data, avionics=avionics, engines=engines, wings=wings)
+    return render_template("parts.html", parts=parts, data=data, avionics=avionics, engines=engines, wings=wings, cost_min=cost_min, cost_max=cost_max)
 
 @app.route("/aircraft", methods = ["GET", "POST"])
 def aircraft():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM aircraft ORDER BY reg_num asc')
     aircrafts = cursor.fetchall()
@@ -222,19 +258,30 @@ def aircraft():
             cursor.execute('DELETE FROM aircraft where reg_num = %s', (reg_num,))
             mysql.connection.commit()
             return redirect('/aircraft')
-        elif val == 'report':
-            cursor.execute('SELECT * from maintenance WHERE reg_num = %s', (reg_num,))
+
+    elif request.method == 'POST' and 'aircraft_functions' in request.form:
+        reg_num = request.form.get('aircraft_functions')[1:]
+        val = request.form.get('ac')
+        if val == 'maintenance':
+            cursor.execute('SELECT * from maintenance WHERE reg_num = %s ORDER BY date DESC', (reg_num,))
             maintenance = cursor.fetchall()
-            cursor.execute('SELECT * from delivery where reg_num = %s', (reg_num,))
+            return render_template('aircraft_report.html', maintenance=maintenance, reg_num=reg_num)
+        elif val == 'deliveries':
+            cursor.execute('SELECT * from delivery where reg_num = %s ORDER BY delivery_date DESC', (reg_num,))
             deliveries = cursor.fetchall()
-            cursor.execute('SELECT * from options where reg_num = %s', (reg_num,))
+            cursor.execute('SELECT c_name FROM company WHERE is_airline = 1')
+            airlines = cursor.fetchall()
+            return render_template('aircraft_deliveries.html', reg_num=reg_num, deliveries=deliveries, airlines=airlines)
+        elif val == 'options':
+            cursor.execute('SELECT * from options where reg_num = %s ORDER BY opt_name ASC', (reg_num,))
             options = cursor.fetchall()
-            return render_template('aircraft_report.html', maintenance=maintenance, deliveries=deliveries, options=options, reg_num=reg_num)
+            return render_template('aircraft_options.html', reg_num=reg_num, options=options)
 
     return render_template("aircraft.html", aircrafts=aircrafts, data=data, airlines=airlines)
 
 @app.route("/maintenance", methods = ["GET", "POST"])
 def maintenance():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM maintenance ORDER BY date DESC')
     records = cursor.fetchall()
@@ -275,12 +322,15 @@ def maintenance():
             cursor.execute('DELETE FROM maintenance WHERE maintenance_id = %s', (m_id,))
             mysql.connection.commit()
             return redirect('/maintenance')
-        elif func == 'parts':
-            cursor.execute('SELECT * FROM maintenance WHERE maintenance_id = %s', (m_id,))
-            maint = cursor.fetchone()
-            cursor.execute('WITH t as (SELECT part_id, qty FROM replaced_parts natural join maintenance WHERE maintenance_id = %s) SELECT part_id, p_name, qty FROM t natural join part', (m_id,))
-            parts = cursor.fetchall()
-            return render_template('maintenance_parts.html', maint=maint, parts=parts)
+
+    elif request.method == 'POST' and 'maintenance_functions' in request.form:
+        m_id = request.form.get('maintenance_functions')[1:]
+        cursor.execute('SELECT * FROM maintenance WHERE maintenance_id = %s', (m_id,))
+        maint = cursor.fetchone()
+        cursor.execute('WITH t as (SELECT part_id, qty FROM replaced_parts natural join maintenance WHERE maintenance_id = %s) SELECT part_id, p_name, qty FROM t natural join part', (m_id,))
+        parts = cursor.fetchall()
+        return render_template('maintenance_parts.html', maint=maint, parts=parts)
+
 
     elif request.method == 'POST' and 'update' in request.form:
         m_id = request.form.get('key')
@@ -315,6 +365,7 @@ def maintenance():
 
 @app.route("/company", methods = ["GET", "POST"])
 def company():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM company ORDER BY c_name ASC')
     companies = cursor.fetchall()
@@ -360,6 +411,7 @@ def company():
 
 @app.route("/type", methods = ["GET", "POST"])
 def type():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM aircraft_type ORDER BY aircraft_name ASC')
     types = cursor.fetchall()
@@ -414,10 +466,17 @@ def type():
 
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
+    checkUser()
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     global TEMP, DICT
     if not session.get("username"): 
         return redirect("/login")
+
+    if request.method == 'POST' and 'adminify' in request.form:
+        cursor.execute('UPDATE account set isAdmin = 1 WHERE username = %s', (session['username'],))
+        mysql.connection.commit()
+        return redirect('/records')
+
     if request.method == 'POST' and "part_1" in request.form:
         val = request.form.get('next')
         data = None
@@ -468,45 +527,14 @@ def contribute():
         return redirect('/type')
 
     elif request.method == 'POST' and "aircraft_submit" in request.form:
-        name = request.form.get('name').replace(' ', '-')
+        reg_num = request.form.get('name').replace(' ', '-')
         model = request.form.get('model')
         date = datetime.strptime(request.form.get('date'),'%Y-%m-%d')
         site = request.form.get('site')
-        TEMP = {'reg_num': name, 'model': model, 'prod_date': date, 'prod_site': site}
-        cursor.execute('SELECT c_name FROM company WHERE is_airline = 1')
-        return render_template('contribute.html', val = '2b', airlines=cursor.fetchall())
-        
-    elif request.method == 'POST' and 'aircraft_p2_submit' in request.form:
-        TEMP['deliveries'] = copy.deepcopy(DICT)
-        return render_template('contribute.html', val='2c')
-
-    elif request.method == 'POST' and 'aircraft_p3_submit' in request.form:
-        reg_num = TEMP['reg_num']
-        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s)", (reg_num, TEMP['model'], TEMP['prod_date'], TEMP['prod_site'],))
+        cursor.execute("INSERT into aircraft VALUES (%s, %s, %s, %s)", (reg_num, model, date, site,))
         mysql.connection.commit()
-
-        deliveries = TEMP['deliveries']
-        for key in deliveries:
-            val = deliveries[key]
-            if len(key) % 4 == 2:
-                key = key + '=='
-            elif len(key) % 4 == 3:
-                key = key + '='
-            val = base64.b64decode(key).decode().split('_')
-            cursor.execute('INSERT into delivery VALUES (%s, %s, %s)', (reg_num, val[0], val[1],))
-            mysql.connection.commit()
-
-        for key in DICT:
-            val = DICT[key]
-            if len(key) % 4 == 2:
-                key = key + '=='
-            elif len(key) % 4 == 3:
-                key = key + '='
-            val = base64.b64decode(key)
-            cursor.execute('INSERT into options VALUES (%s, %s)', (reg_num, val,))
-            mysql.connection.commit()
         return redirect('/aircraft')
-
+        
     elif request.method == 'POST' and 'part_submit' in request.form:
         p_name = request.form.get('p_name')
         c_name = request.form.get('company')
@@ -578,6 +606,17 @@ def contribute():
             stab_check = request.form.get('stab_check')
             cursor.execute('INSERT into d_check VALUES(%s, %s, %s, %s)', (m_id, wing_check, floor_check, stab_check,))
             mysql.connection.commit()
+        for key in DICT:
+            val = DICT[key]
+            if len(key) % 4 == 2:
+                key = key + '=='
+            elif len(key) % 4 == 3:
+                key = key + '='
+            name = base64.b64decode(key).decode()
+            cursor.execute('SELECT * FROM part WHERE p_name = %s', (name,))
+            part = cursor.fetchone()
+            cursor.execute('INSERT into replaced_parts VALUES (%s, %s, %s)', (m_id, part['part_id'], val,))
+            mysql.connection.commit()
         return redirect('/maintenance')
 
     elif request.method == 'POST' and 'company_next' in request.form:
@@ -595,15 +634,16 @@ def contribute():
         else: 
             cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (c_id, c_name, est_date, address, isProvider, isManufacturer, None, isAirline, None, None, isSupplier,))
             mysql.connection.commit()
-            return redirect('/records')
+            return redirect('/company')
 
     elif request.method == 'POST' and 'company_submit' in request.form:
+        c_id = TEMP['c_id']
         main_facility = request.form.get('main_faci')
         carrier_type = request.form.get('carrier_type')
         country = request.form.get('country')
-        cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (c_id, c_name, est_date, address, isProvider, isManufacturer, main_facility, isAirline, carrier_type, country, isSupplier,))
+        cursor.execute("INSERT into company VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (c_id, TEMP['c_name'], TEMP['est_date'], TEMP['address'], TEMP['isProvider'], TEMP['isManufacturer'], main_facility, TEMP['isAirline'], carrier_type, country, TEMP['isSupplier'],))
         mysql.connection.commit()
-        return redirect('/records')
+        return redirect('/company')
 
     return render_template('contribute.html')
 
@@ -611,8 +651,48 @@ def contribute():
 def js_post():
     global DICT
     DICT = request.form.to_dict()
-    print(DICT, file=sys.stdout)
     return 'transformed'
 
+@app.route('/manageDelivery', methods=['POST'])
+def manageDelivery():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    arr = request.form.to_dict()
+    reg_num = arr['reg_num']
+    name = arr['name']
+    date = arr['date']
+    func = arr['type']
+    if func == 'delete':
+        cursor.execute('DELETE FROM delivery WHERE reg_num = %s and airline_name = %s and delivery_date = %s', (reg_num, name, date,))
+        mysql.connection.commit()
+    elif func == 'add':
+        cursor.execute('INSERT into delivery VALUES (%s, %s, %s)', (reg_num, name, date,))
+        mysql.connection.commit()
+    return 'transaction completed'
+
+@app.route('/manageOption', methods=['POST'])
+def manageOption():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    arr = request.form.to_dict()
+    reg_num = arr['reg_num']
+    option = arr['option']
+    func = arr['func']
+    if func == 'delete':
+        cursor.execute('DELETE FROM options WHERE reg_num = %s and opt_name = %s', (reg_num, option,))
+        mysql.connection.commit()
+    else:
+        cursor.execute('INSERT into options VALUES (%s, %s)', (reg_num, option))
+        mysql.connection.commit()
+    return 'transaction completed'
+
+def checkUser():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    print(session.get('username'))
+    print(session.get('isAdmin'))
+    if not session.get('username'):
+        return redirect('/login')
+    else: 
+        cursor.execute('SELECT * FROM account WHERE username = %s', (session.get('username'),))
+        user = cursor.fetchone()
+        session['isAdmin'] = user['isAdmin']
 if __name__ == "__main__":
     app.run(host="localhost", port=8000, debug=True)

@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
 
+  {% if session.isAdmin == '1' %}
+
     <form style="padding: 5%; margin-left: 10%; margin-right: 10%;" method="post">
       {% if val == '1' %}
         {% set type = [] %}
@@ -13,7 +15,7 @@
       {% elif val == '2' %}
         {% set aircraft = [] %}
         {% include 'aircraft_contribute.html' %}
-        <button name="aircraft_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>      
+        <button name="aircraft_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>      
       {% elif val == '2b' %}
         {% include 'aircraft_p2_contribute.html' %}
         <button name="aircraft_p2_submit" type="submit" class="btn btn-primary" style="margin-top: 3%;">Next</button>     
@@ -43,6 +45,7 @@
         {% include 'company_contribute.html' %}
         <button name="company_next" type="submit" class="btn btn-primary" style="margin-top: 1%;">Next</button>     
       {% elif val == '5b' %}
+        {% set company = [] %}
         {% include 'company_p2_contribute.html' %}     
         <button name="company_submit" type="submit" class="btn btn-primary" style="margin-top: 1%;">Submit</button>     
    
@@ -64,7 +67,11 @@
       {% endif %}
     </form>
 
-    <h1 style="margin-top: 50%"></h1>
+  {% else %}
+  {% include 'be_an_admin.html' %}
+  {% endif %}
+  <section style="margin-top: 50%;"></section>
+
 
 
 {% endblock %}

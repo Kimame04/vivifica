@@ -1,0 +1,189 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div style="margin: 2%;">
+    <button class="btn btn-outline-light" onclick="location.href='/records'"><i class="fa fa-angle-left"></i> Back</button>
+    <h2 style="margin-top: 3%">Aircraft Report</h2>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 100%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Register Number</span>
+        </div>
+        <input class="form-control" value="{{aircraft.reg_num}}" style="display: inline;" readonly>  
+    </div>
+    <h3>Type Information</h3>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Type Name</span>
+        </div>
+        <input class="form-control" value="{{type.aircraft_name}}" style="display: inline;" readonly>  
+    </div>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Manufacturer</span>
+        </div>
+        <input class="form-control" value="{{type.c_name}}" style="display: inline;" readonly>  
+    </div>
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Year Introduced</span>
+        </div>
+        <input class="form-control" value="{{type.year_introduced}}" style="display: inline;" readonly>  
+    </div>
+
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Size Class</span>
+        </div>
+        <input class="form-control" value="{{type.size_class}}" style="display: inline;" readonly>  
+    </div>
+
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Number of Engines</span>
+        </div>
+        <input class="form-control" value="{{type.no_engines}}" style="display: inline;" readonly>  
+    </div>
+
+    <h4> Type Parts </h4>
+    {% if not parts %}
+    {% include 'no_result.html' %}
+    {% endif %}
+    {% for type_part in type_parts %}
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Part Name</span>
+        </div>
+        <input class="form-control" value="{{type_part.p_name}}" style="display: inline;" readonly>  
+        <div class="input-group-prepend">
+            <span class="input-group-text">Supplier</span>
+        </div>
+        <input class="form-control" value="{{type_part.c_name}}" style="display: inline;" readonly>  
+    </div>
+
+    {% endfor %}
+
+    <h3>Aircraft Ownership</h3>
+    {% if not deliveries %}
+    {% include 'no_result.html' %}
+    {% endif %}
+
+    {% for delivery in deliveries %}
+    <div class="input-group mb-3" style="margin-top: 1%; width: 60%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Airline</span>
+        </div>
+        <input class="form-control" value="{{delivery.airline_name}}" style="display: inline;" readonly>  
+        <div class="input-group-prepend">
+            <span class="input-group-text">Date</span>
+        </div>
+        <input class="form-control" value="{{delivery.delivery_date}}" style="display: inline;" readonly>  
+    </div>
+
+    {% endfor %}
+
+    <h3>Aircraft Customisation</h3>
+    {% if not options %}
+    {% include 'no_result.html' %}
+    {% endif %}
+
+    {% for option in options %}
+    <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Option</span>
+        </div>
+        <input class="form-control" value="{{option.opt_name}}" style="display: inline;" readonly>  
+    </div>
+    {% endfor %}
+
+    <h3>Maintenance Record</h3>
+    {% if not full_records %}
+    {% include 'no_result.html' %}
+    {% endif %}
+
+    {% for record in full_records %}
+    <div class="input-group mb-3" style="margin-top: 1%; width: 80%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Date</span>
+        </div>
+        <input class="form-control" value="{{record.date}}" style="display: inline;" readonly>  
+        <div class="input-group-prepend">
+            <span class="input-group-text">Provider</span>
+        </div>
+        <input class="form-control" value="{{record.provider}}" style="display: inline;" readonly>  
+        <div class="input-group-prepend">
+            <span class="input-group-text">Facility Location</span>
+        </div>
+        <input class="form-control" value="{{record.facility_loc}}" style="display: inline;" readonly>  
+        <div class="input-group-prepend">
+            <span class="input-group-text">Check</span>
+        </div>
+        {% if record.wing_check %}
+        <input class="form-control" value="D" style="display: inline;" readonly> 
+        {% elif record.engine_check %}
+        <input class="form-control" value="C" style="display: inline;" readonly> 
+        {% elif record.flap_test %}
+        <input class="form-control" value="A" style="display: inline;" readonly> 
+        {% endif %}
+    </div>
+    <div class="input-group mb-3" style="margin-top: 1%;">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Summary</span>
+        </div>
+        <input class="form-control" value="{{record.summary}}" style="display: inline;" readonly> 
+    
+    </div>
+
+    {% if record.flap_test %} 
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{'Flap Test: ' + record.flap_test}}</li>
+        <li class="list-group-item">{{'Brake Test: ' + record.brake_test}}</li>
+        <li class="list-group-item">{{'Damage Check: ' + record.damage_check}}</li>
+        <li class="list-group-item">{{'Oxygen Pressure Check: ' + record.oxy_pres_check}}</li>
+    </ul>
+    <br>
+
+    {% endif %}
+
+    {% if record.door_check %}
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{'Door Check: ' + record.door_check}}</li>
+        <li class="list-group-item">{{'Engine Check: ' + record.engine_check}}</li>
+        <li class="list-group-item">{{'Fuel Pressure Check: ' + record.fuel_pres_check}}</li>
+    </ul>
+    <br>
+
+    {% endif %}
+
+    {% if record.wing_check %}
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{'Wing Check: ' + record.wing_check}}</li>
+        <li class="list-group-item">{{'Floor Check: ' + record.floor_check}}</li>
+        <li class="list-group-item">{{'Stabiliser Check: ' + record.stab_check}}</li>
+    </ul>
+    <br>
+    {% endif %}
+
+    {% endfor %}
+
+    <h3>Replaced Parts</h3>
+    {% for part in replaced_parts %}
+    <div class="card" style="width: 12rem; margin: 0 auto; margin-top: 1%; display: inline-block;">
+        <div class="card-body" data-bs-toggle="modal" data-bs-target='{{target}}'>
+            <h5 class="card-title">{{part.p_name}}</h5>
+            <h6 class="card-subtitle">{{'Qty: ' + part.qty|string}} </h6>
+            <p class="card-text">{{part.supplier}}</p>
+        </div>
+        <div class="card-footer text-muted">{{part.date}}</div>
+    </div>
+    {% endfor %}
+    <br>
+    <button style="margin-top: 5%;" class="btn btn-primary" onclick="window.print()"><i class="fa fa-arrow-down"></i> Save as PDF</button>
+
+
+
+
+</div>
+<section style="margin-top: 50%;"></section>
+
+{% endblock %}

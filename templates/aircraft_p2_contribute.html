@@ -1,6 +1,7 @@
 <h2>Deliveries</h2>
 
 <div class="form-group" style="margin-top: 1%;">
+  <input name="reg_num" value="{{reg_num}}" hidden>
   <label for="exampleFormControlSelect1">Airline</label>
   <select name="airline" class="form-control" id="airline" required>
     {% for model in airlines %}
@@ -27,5 +28,5 @@
   </tbody>
 </table>
 
-<button id="add" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addDelivery('table', 'airline', 'date')">Add</button>      
+<button id="add" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addDelivery('table', 'airline', 'date', 'reg_num')">Add</button>      
 <br>

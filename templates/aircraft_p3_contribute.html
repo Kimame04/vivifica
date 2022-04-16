@@ -4,6 +4,7 @@
     <label for="exampleFormControlSelect1">Options</label>
     <input name="site" type="text" class="form-control" id="opt" placeholder="Optional">
 </div>
+<input name="reg_num" value="{{reg_num}}" hidden>
 
 <table name="table" id="table" class="table table-dark table-hover table-sm table-striped">
     <thead>
@@ -17,6 +18,6 @@
     </tbody>
   </table>
 <input type="hidden" name="options" id="options">
-<button id="add_option" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addOption('table', 'opt')">Add</button>      
+<button id="add_option" type="button" class="btn btn-outline-primary" style="margin-top: 1%;" onclick="addOption('table', 'opt', 'reg_num')">Add</button>      
 <br>
     

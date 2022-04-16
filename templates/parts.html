@@ -6,8 +6,8 @@
         <h2>Parts List</h2>
         <form method="post">
             <div class="input-group mb-3">
-                <input type="text" name="query" class="form-control" placeholder="Part name" aria-label="Part name" aria-describedby="basic-addon2">
-                <select class="form-select" aria-label="Default select example" name="sort">
+                <input type="text" name="query" class="form-control" placeholder="Search 'avionics', 'UWO Co.' etc..." aria-label="Part name" aria-describedby="basic-addon2" required>
+                <select class="form-select" aria-label="Default select example" name="sort" hidden>
                     <option selected value="1"> Sort by...</option>
                     <option value="1">Part A-Z</option>
                     <option value="2">Part Z-A</option>
@@ -17,20 +17,40 @@
                 <button class="input-group-text border-0" id="search-addon" type="submit"><i class="fas fa-search"></i></button>
 
             </div>
-            {% if query and not parts %}
-            {% include 'no_result.html' %}
-            {% elif query %}
+            <div class="custom-control custom-switch">
+                <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
+                <label class="custom-control-label" for="customSwitches">Display result as table</label>
+            </div>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" name="filter_switch" class="custom-control-input" id="filter_switch" onchange="changeFilterState(this, 'customRange2')">
+                <label class="custom-control-label" for="filter_switch">Filters</label>
+            </div>
+            <div class="range" style="margin-top: 2%;">
+                <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Minimum Cost $</span>
+                    </div>
+                    <input name="cost_display" id="cost_display" class="form-control" value="{{cost_min.min_cost}}" style="display: inline;" readonly>
+                </div> 
+                <input disabled type="range" class="form-range" value="{{cost_min.min_cost}}" min="{{cost_min.min_cost}}" max="{{cost_max.max_cost}}" id="customRange2" oninput="document.getElementById('cost_display').value = this.value;" />
+            </div>
+    
+            {% if query %}
               <div class="input-group mb-3" style="margin-top: 1%; width: 30%;">
                 <div class="input-group-prepend">
                   <span class="input-group-text">Query</span>
                 </div>
                 <input class="form-control" value="{{query}}" style="display: inline;" readonly>
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Results</span>
+                </div>
+                <input class="form-control" value="{{parts|length}}" style="display: inline;" readonly>
               </div>
             {% endif %}
-            <div class="custom-control custom-switch">
-              <input type="checkbox" name="check" class="custom-control-input" id="customSwitches">
-              <label class="custom-control-label" for="customSwitches">Display result as table</label>
-            </div>
+            {% if query and not parts %}
+            {% include 'no_result.html' %}
+            {% endif %}
+
         </form>
 
 
@@ -168,6 +188,7 @@
 
                         {% endif %}
                     </div>
+                    {% if session.isAdmin == '1' %}
                     <div class="modal-footer">
                         <form method="post">
                             <input type="hidden" name="modalfunc" value="{{id}}">
@@ -179,10 +200,13 @@
                             </button>                    
                         </form>
                     </div>
+                    {% endif %}
                 </div>
                 </div>
             </div>
+            {% if session.isAdmin == '1' %}
             {% include 'side_modal.html' %}
+            {% endif %}
 
         {% endfor %}
 

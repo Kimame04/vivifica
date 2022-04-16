@@ -16,10 +16,10 @@ aria-hidden="true">
                 {% elif company %}
                     {% include 'company_contribute.html' %}
                     {% include 'company_p2_contribute.html' %}
-                    {% set key = company.c_id %}
+                    {% set key = company.c_name %}
                 {% elif type %}
                     {% include 'type_contribute.html' %}
-                    {% set key = type.type_id %}
+                    {% set key = type.aircraft_name %}
                 {% endif %}
             </div>
             <div class="modal-footer justify-content" style="background-color: black;">
